@@ -72,4 +72,36 @@ class DemandData :
                 d.outlier = True
 
 
+    # Calculate the 24 hour running average for each hour.
+    # This should give insight into how large of an effect multi-day
+    # weather patters are. Missing data is treated as a gap in data
+    # instead of -99.99. Computation currently includes outliers.
+    def compute_daily_averages(self):
+
+        twenty_four_hours = []
+        for d in self.hourly_data:
+            # Add new value
+            if len(twenty_four_hours) < 24:
+                twenty_four_hours.append(d.demand)
+            total = 0.
+            n_good_hours = 0
+            if len(twenty_four_hours) == 24:
+                for h in twenty_four_hours:
+                    if h != -99.99:
+                        total += h
+                        n_good_hours += 1
+                # Pop off oldest hourly value
+                twenty_four_hours.pop(0)
+            if n_good_hours > 0:
+                d.daily_avg = total / n_good_hours
+            else:
+                d.daily_avg = 0.
+            if len(twenty_four_hours) >= 24:
+                print ("Error, len == %i" % len(twenty_four_hours))
+
+
+
+
+
+
 

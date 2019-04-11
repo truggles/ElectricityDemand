@@ -23,7 +23,7 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
 
 def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[]):
 
-    matplotlib.rcParams['figure.figsize'] = (20.0, 4.0)
+    matplotlib.rcParams['figure.figsize'] = (14.0, 6.0)
     fig, ax = plt.subplots()
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
@@ -39,4 +39,12 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     plt.legend()
     plt.grid()
     plt.savefig("plots/"+save+".png")
+    return fig, ax
 
+
+def plot_demand_with_daily(fig, ax, daily_x, daily_y, save):
+    ax.plot(daily_x, daily_y, 'o', label='24 Hour Avg')
+    plt.legend()
+    plt.grid()
+    plt.savefig("plots/"+save+".png")
+    return fig, ax

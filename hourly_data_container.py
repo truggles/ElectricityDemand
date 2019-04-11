@@ -41,6 +41,7 @@ class HourlyDataContainer:
         self.deltas_valid = False # Must pass check before True
         self.delta_previous = -99.99
         self.delta_following = -99.99
+        self.daily_avg = -99.99
 
 
     # Print all values
