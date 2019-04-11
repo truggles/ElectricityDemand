@@ -55,34 +55,39 @@ class DemandData :
     # Currently using a modified IQR method with much broader range.
     # This currently only targets single hour outliers where the
     # delta is large compared to the previous and following hour.
+    # Skip analyzing previous or following if they are 'missing'
     def find_hourly_outliers(self):
 
         x = [d.delta_previous for d in self.hourly_data if not d.missing]
-        q05 = percentile(x, 5)
-        q95 = percentile(x, 95)
-        iqr = q95 - q05
-        
-        cut_off = iqr * 1.5
-        lower = q05 - cut_off
-        upper = q95 + cut_off
+        if len(x) > 0:
+            q05 = percentile(x, 5)
+            q95 = percentile(x, 95)
+            iqr = q95 - q05
+            
+            cut_off = iqr * 1.5
+            lower = q05 - cut_off
+            upper = q95 + cut_off
 
-        for d in self.hourly_data:
-            if ((d.delta_previous < lower or d.delta_previous > upper) and 
-                    (d.delta_following < lower or d.delta_following > upper)):
-                d.outlier = True
+            for d in self.hourly_data:
+                if ((d.delta_previous < lower or d.delta_previous > upper) and 
+                        (d.delta_following < lower or d.delta_following > upper) and
+                        d.deltas_valid):
+                    d.outlier = True
 
 
     # Calculate the 24 hour running average for each hour.
     # This should give insight into how large of an effect multi-day
     # weather patters are. Missing data is treated as a gap in data
-    # instead of -99.99. Computation currently includes outliers.
+    # instead of -99.99. 
+    # Skip outliers.
     def compute_daily_averages(self):
 
         twenty_four_hours = []
         for d in self.hourly_data:
             # Add new value
             if len(twenty_four_hours) < 24:
-                twenty_four_hours.append(d.demand)
+                to_append = d.demand if not d.outlier else -99.99
+                twenty_four_hours.append(to_append)
             total = 0.
             n_good_hours = 0
             if len(twenty_four_hours) == 24:
