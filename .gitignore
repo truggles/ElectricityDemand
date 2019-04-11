@@ -1,3 +1,4 @@
 EIA_demand_data/*
 *.ipynb
+__pycache__/*
 *.zip

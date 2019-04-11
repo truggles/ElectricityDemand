@@ -1,5 +1,6 @@
 from hourly_data_container import HourlyDataContainer
 import csv
+from numpy import percentile
 
 
 class DemandData :
@@ -49,4 +50,26 @@ class DemandData :
             self.hourly_data[i].compute_deltas(self.hourly_data[i-1], self.hourly_data[i+1])
 
         print ("Length of hourly data: %i" % len(self.hourly_data))
+
+
+    # Currently using a modified IQR method with much broader range.
+    # This currently only targets single hour outliers where the
+    # delta is large compared to the previous and following hour.
+    def find_hourly_outliers(self):
+
+        x = [d.delta_previous for d in self.hourly_data if not d.missing]
+        q05 = percentile(x, 5)
+        q95 = percentile(x, 95)
+        iqr = q95 - q05
+        
+        cut_off = iqr * 1.5
+        lower = q05 - cut_off
+        upper = q95 + cut_off
+
+        for d in self.hourly_data:
+            if ((d.delta_previous < lower or d.delta_previous > upper) and 
+                    (d.delta_following < lower or d.delta_following > upper)):
+                d.outlier = True
+
+
 
