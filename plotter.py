@@ -27,14 +27,22 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     fig, ax = plt.subplots()
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
-    if ylim != []:
-        ax.set_ylim(ylim[0], ylim[1])
     plt.title(title)
 
+    y_max = 0.
     for hourly_data_set, name in zip(hourly_data_sets, names):
         x = [hour_data.hour for hour_data in hourly_data_set]
         y = [hour_data.demand for hour_data in hourly_data_set]
+        this_max = max(y) if len(y) > 0 else 0
+        if this_max > y_max:
+            y_max = this_max
         ax.plot(x, y, 'o', label=name)
+
+    if ylim != []:
+        ax.set_ylim(ylim[0], ylim[1])
+    else:
+        old_y_min, old_y_max = ax.get_ylim()
+        ax.set_ylim(old_y_min, y_max * 1.1)
 
     plt.legend()
     plt.grid()
