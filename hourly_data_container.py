@@ -23,6 +23,12 @@ class HourlyDataContainer:
     def __init__(self, hour, demand):
 
         self.hour = hour
+
+        ## Set local hour in region, value is reported in this format: "07/01/2015 1:00:00 AM" 
+        #hour_info = local_hour.split(' ')
+        #pm_adjust = 0 if hour_info[2] == 'AM' else 12
+        #self.daily_hour = int(hour_info[1].split(':')[0]) + pm_adjust #- 1 # -1 for python list indexing
+        self.daily_hour = hour%24
         # CSV values greater than 1,000 are stored as strings with ',' that need removing
         self.raw_demand = demand.replace(',','')
 

@@ -1,6 +1,30 @@
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.pyplot import figure
+import numpy as np
+
+
+def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save):
+
+    matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
+
+    hourly_demand = np.zeros(24)
+    hourly_demand_entries = np.zeros(24) # For averaging
+    for d in hourly_data_set:
+        if d.missing: continue
+        hourly_demand[d.daily_hour] += d.demand
+        hourly_demand_entries[d.daily_hour] += 1
+    for i in range(len(hourly_demand)):
+        hourly_demand[i] = hourly_demand[i] / hourly_demand_entries[i]
+    hours = [i for i in range(1, 25)]
+
+    fig, ax = plt.subplots()
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    plt.title(title)
+    ax.plot(hours, hourly_demand, 'o', label='Hourly Average')
+    plt.legend()
+    plt.savefig("plots/"+save+".png")
 
 
 def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
