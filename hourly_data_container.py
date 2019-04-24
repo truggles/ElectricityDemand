@@ -29,6 +29,7 @@ class HourlyDataContainer:
         #pm_adjust = 0 if hour_info[2] == 'AM' else 12
         #self.daily_hour = int(hour_info[1].split(':')[0]) + pm_adjust #- 1 # -1 for python list indexing
         self.daily_hour = int(daily_hour)
+        if self.daily_hour > 24: self.daily_hour = 24 # Not sure why, but there are a few errors for date 11/05/2018
         self.month = int(date.split('/')[0])
         # CSV values greater than 1,000 are stored as strings with ',' that need removing
         self.raw_demand = demand.replace(',','')

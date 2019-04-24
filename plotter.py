@@ -5,7 +5,7 @@ import numpy as np
 from collections import OrderedDict
 
 
-def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_all_seasons=False):
+def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_all_seasons=False, include_outliers=False):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
 
@@ -29,6 +29,9 @@ def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_a
     # Fill and get number of entries
     for d in hourly_data_set:
         if d.missing: continue
+        if d.outlier: 
+            if not include_outliers:
+                continue
         for season in seasons.keys() :
             if d.month >= seasons[season][0] and d.month <= seasons[season][1]:
                 hourly_demand[season][d.daily_hour-1] += d.demand
@@ -36,7 +39,6 @@ def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_a
 
     # Average
     for season in seasons.keys() :
-        print(season)
         for i in range(len(hourly_demand[season])):
             hourly_demand[season][i] = hourly_demand[season][i] / hourly_demand_entries[season][i]
 
