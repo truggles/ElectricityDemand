@@ -2,27 +2,52 @@ import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.pyplot import figure
 import numpy as np
+from collections import OrderedDict
 
 
-def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save):
+def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_all_seasons=False):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
 
-    hourly_demand = np.zeros(24)
-    hourly_demand_entries = np.zeros(24) # For averaging
+    seasons = OrderedDict()
+    # season : min, max month
+    seasons['Annual'] = [1, 12]
+    if do_all_seasons:
+        seasons['Winter'] = [1, 3]
+        seasons['Spring'] = [4, 6]
+        seasons['Summer'] = [7, 9]
+        seasons['Autumn'] = [10, 12]
+
+    hourly_demand = OrderedDict()
+    hourly_demand_entries = OrderedDict()
+
+    # Initialize to zeros
+    for season in seasons.keys() :
+        hourly_demand[season] = np.zeros(24)
+        hourly_demand_entries[season] = np.zeros(24)  # For averaging
+
+    # Fill and get number of entries
     for d in hourly_data_set:
         if d.missing: continue
-        hourly_demand[d.daily_hour] += d.demand
-        hourly_demand_entries[d.daily_hour] += 1
-    for i in range(len(hourly_demand)):
-        hourly_demand[i] = hourly_demand[i] / hourly_demand_entries[i]
+        for season in seasons.keys() :
+            if d.month >= seasons[season][0] and d.month <= seasons[season][1]:
+                hourly_demand[season][d.daily_hour-1] += d.demand
+                hourly_demand_entries[season][d.daily_hour-1] += 1
+
+    # Average
+    for season in seasons.keys() :
+        print(season)
+        for i in range(len(hourly_demand[season])):
+            hourly_demand[season][i] = hourly_demand[season][i] / hourly_demand_entries[season][i]
+
     hours = [i for i in range(1, 25)]
 
     fig, ax = plt.subplots()
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     plt.title(title)
-    ax.plot(hours, hourly_demand, 'o', label='Hourly Average')
+    for season in seasons.keys() :
+        ax.plot(hours, hourly_demand[season], 'o', label=season)
     plt.legend()
     plt.savefig("plots/"+save+".png")
 

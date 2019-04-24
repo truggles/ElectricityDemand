@@ -3,3 +3,4 @@ EIA_demand_data/*
 __pycache__/*
 *.zip
 plots/*
+*.txt

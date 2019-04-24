@@ -15,6 +15,9 @@ class DemandData :
         self.year = year
         self.hourly_data = []
         self.demand_position = 6 # Position of reported demand use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
+        self.uct_time_position = 4 # Position of UCT time in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
+        self.hour_position = 2 # Position of local daily hour use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
+        self.date_position = 1 # Position of local date in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
 
         print (self.region, self.year)
 
@@ -35,13 +38,26 @@ class DemandData :
                     if line[self.demand_position] != 'Demand (MW)':
                         print ("\n\nDemand listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
                         break
+                    if line[self.uct_time_position] != 'UTC Time at End of Hour':
+                        print ("\n\nUTC Time at End of Hour listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
+                        break
+                    if line[self.date_position] != 'Data Date':
+                        print ("\n\nData Date listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
+                        break
+                    if line[self.hour_position] != 'Hour Number':
+                        print ("\n\nHour listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
+                        break
                     continue
                 # Make sure to match region of interest
                 if line[0] != self.region:
                     continue
 
                 # Initialize an HourlyDataContainer for this hour
-                self.hourly_data.append( HourlyDataContainer(hour, line[self.demand_position]) )
+                self.hourly_data.append( HourlyDataContainer(hour, 
+                    line[self.hour_position],
+                    line[self.date_position],
+                    line[self.uct_time_position],
+                    line[self.demand_position]) )
                 hour += 1
 
         # For all hourly data, make delta comparisons
