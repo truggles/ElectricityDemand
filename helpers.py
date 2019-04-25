@@ -21,11 +21,15 @@ def get_seasons_thresholds(do_all_seasons=False):
     return seasons
 
 # Print "normal" average and average based only on values within defined IQR range
-def check_avgs(x, val, name=''):
+def check_avgs(x, val, name='', verbose=False):
     q_vals = percentiles(x, val)
     x_iqr = [val for val in x if (val > q_vals[0] and val < q_vals[1])]
-    print ("%15s Average: %.1f     IQR %i Average: %.1f    IQR Low: %.1f   IQR High: %.1f" 
-            % (name, np.average(x), val, np.average(x_iqr), q_vals[0], q_vals[1]))
+    if len(x_iqr) == 0:
+        return np.average(x), 0.
+    if verbose:
+        print ("%15s Average: %.1f     IQR %i Average: %.1f    IQR Low: %.1f   IQR High: %.1f" 
+                % (name, np.average(x), val, np.average(x_iqr), q_vals[0], q_vals[1]))
+    return np.average(x), np.average(x_iqr)
 
 # Loop check_avgs for 5 seasonal scenarios
 def check_seasonal_avgs(hourly_data, val, do_all_seasons=False):
@@ -33,6 +37,6 @@ def check_seasonal_avgs(hourly_data, val, do_all_seasons=False):
     for season in seasons.keys():
         x = [d.demand for d in hourly_data if (not d.missing and 
                 (d.month >= seasons[season][0] and d.month <= seasons[season][1]))]
-        check_avgs(x, val, season)
+        check_avgs(x, val, season, True)
 
     

@@ -51,9 +51,10 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
     x.sort() # to use for x range
+    fig, ax = plt.subplots()
     n, bins, patches = plt.hist(x, n_bins, range=[x[0], x[-1]], facecolor='g', alpha=0.75)
 
-    plt.xlabel(x_labell)
+    plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
     #plt.text(bins.max()*0.35, n.max()*.95, r'ChiSq / ndof = %.2f' % (chiSq/ len(demand['hour']) ) )
@@ -94,9 +95,24 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     return fig, ax
 
 
-def plot_demand_with_daily(fig, ax, daily_x, daily_y, save):
-    ax.plot(daily_x, daily_y, 'o', label='24 Hour Avg')
+def plot_demand_with_daily(fig, ax, daily_x, daily_y, save, title='24 Hour Avg'):
+    ax.plot(daily_x, daily_y, 'o', label=title)
     plt.legend()
     plt.grid()
     plt.savefig("plots/"+save+".png")
     return fig, ax
+
+def plot_demand_comparisons(x_val_vec, y_val_vec, title_vec, name):
+    matplotlib.rcParams['figure.figsize'] = (14.0, 6.0)
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Hour')
+    ax.set_ylabel('Demand (MW)')
+    plt.title('48 Hr Avg Comparisons')
+    
+    for x, y, title in zip(x_val_vec, y_val_vec, title_vec):
+        ax.plot(x, y, 'o', label=title)
+    plt.legend()
+    plt.grid()
+    plt.savefig("plots/"+name+".png")
+    return fig, ax
+

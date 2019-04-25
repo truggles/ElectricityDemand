@@ -1,6 +1,7 @@
 from hourly_data_container import HourlyDataContainer
 import csv
 from numpy import percentile
+import helpers as helpers
 
 
 class DemandData :
@@ -122,6 +123,47 @@ class DemandData :
 
 
 
+    def compute_hour_centered_averages(self, n_hours_surrounding=24, iqr_val=25):
+
+        assert(n_hours_surrounding > 0 and type(n_hours_surrounding)==int)
+
+        n_hours = len(self.hourly_data)
+
+        # Make list of all hours with missing as -99.99
+        running_hours = []
+        for d in self.hourly_data:
+            if not d.missing:
+                running_hours.append(d.demand)
+            else:
+                running_hours.append(-99.99)
+
+        # Loop over list and compute avgs and iqr avgs
+        assert(n_hours == len(running_hours))
+        for i in range(len(running_hours)):
+            # fill with dummy val if we don't have full range requested
+            if i < n_hours_surrounding or i > n_hours - n_hours_surrounding:
+                self.hourly_data[i].set_centered_average(0.)
+                self.hourly_data[i].set_centered_iqr_average(0.)
+                continue
+
+            # demand for the hours surrounding the current hour giving 2 * n_hours_surrounding total
+            # +1 extends to n past the current hour
+            surrounding_vals = running_hours[i - n_hours_surrounding : i + n_hours_surrounding] 
+            assert(len(surrounding_vals) == 2*n_hours_surrounding)
+
+            # Remove missing values
+            new_vals = []
+            for val in surrounding_vals:
+                if val != -99.99:
+                    new_vals.append(val) 
+
+            if len(new_vals)>0:
+                avg, iqr_avg = helpers.check_avgs(new_vals, iqr_val)
+                self.hourly_data[i].set_centered_average(avg)
+                self.hourly_data[i].set_centered_iqr_average(iqr_avg)
+            else:
+                self.hourly_data[i].set_centered_average(0.)
+                self.hourly_data[i].set_centered_iqr_average(0.)
 
 
 

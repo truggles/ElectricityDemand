@@ -1,4 +1,4 @@
-
+import numpy as np
 
 
 
@@ -50,7 +50,8 @@ class HourlyDataContainer:
         self.delta_previous = -99.99
         self.delta_following = -99.99
         self.daily_avg = -99.99
-
+        self.centered_average = -99.99
+        self.centered_iqr_average = -99.99
 
     # Print all values
     def __str__(self):
@@ -79,12 +80,22 @@ class HourlyDataContainer:
         return
 
 
-    def set_outlier(is_outlier):
+    def set_outlier(self, is_outlier):
 
         assert(type(is_outlier) == type(True))
-
         self.outlier = is_outlier
-        
         return
 
         
+    def set_centered_average(self, val):
+
+        assert(type(val) == float or type(val) == np.float64)
+        self.centered_average = val
+        return
+
+
+    def set_centered_iqr_average(self, val):
+
+        assert(type(val) == float or type(val) == np.float64)
+        self.centered_iqr_average = val
+        return
