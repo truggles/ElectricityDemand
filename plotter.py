@@ -3,21 +3,14 @@ import matplotlib
 from matplotlib.pyplot import figure
 import numpy as np
 from collections import OrderedDict
+import helpers as helpers
 
 
 def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_all_seasons=False, include_outliers=False):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
 
-    seasons = OrderedDict()
-    # season : min, max month
-    seasons['Annual'] = [1, 12]
-    if do_all_seasons:
-        seasons['Winter'] = [1, 3]
-        seasons['Spring'] = [4, 6]
-        seasons['Summer'] = [7, 9]
-        seasons['Autumn'] = [10, 12]
-
+    seasons = helpers.get_seasons_thresholds(do_all_seasons)
     hourly_demand = OrderedDict()
     hourly_demand_entries = OrderedDict()
 
