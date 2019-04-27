@@ -1,7 +1,8 @@
 from hourly_data_container import HourlyDataContainer
 import csv
-from numpy import percentile
+import numpy as np
 import helpers as helpers
+from collections import OrderedDict
 
 
 class DemandData :
@@ -19,6 +20,8 @@ class DemandData :
         self.uct_time_position = 4 # Position of UCT time in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
         self.hour_position = 2 # Position of local daily hour use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
         self.date_position = 1 # Position of local date in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
+
+        self.hourly_demand = OrderedDict() # Can be filled later with set_hourly_demand
 
         print (self.region, self.year)
 
@@ -77,8 +80,8 @@ class DemandData :
 
         x = [d.delta_previous for d in self.hourly_data if not d.missing]
         if len(x) > 0:
-            q05 = percentile(x, 5)
-            q95 = percentile(x, 95)
+            q05 = np.percentile(x, 5)
+            q95 = np.percentile(x, 95)
             iqr = q95 - q05
             
             cut_off = iqr * 1.5
@@ -166,5 +169,29 @@ class DemandData :
                 self.hourly_data[i].set_centered_iqr_average(0.)
 
 
+    def set_hourly_demand(self, do_all_seasons=False, include_outliers=False):
+        seasons = helpers.get_seasons_thresholds(do_all_seasons)
+        hourly_demand_entries = OrderedDict()
+
+        # Initialize to zeros
+        for season in seasons.keys() :
+            self.hourly_demand[season] = np.zeros(24)
+            hourly_demand_entries[season] = np.zeros(24)  # For averaging
+
+        # Fill and get number of entries
+        for d in self.hourly_data:
+            if d.missing: continue
+            if d.outlier: 
+                if not include_outliers:
+                    continue
+            for season in seasons.keys() :
+                if d.month >= seasons[season][0] and d.month <= seasons[season][1]:
+                    self.hourly_demand[season][d.daily_hour-1] += d.demand
+                    hourly_demand_entries[season][d.daily_hour-1] += 1
+
+        # Average
+        for season in seasons.keys() :
+            for i in range(len(self.hourly_demand[season])):
+                self.hourly_demand[season][i] = self.hourly_demand[season][i] / hourly_demand_entries[season][i]
 
 

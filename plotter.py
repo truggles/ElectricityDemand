@@ -6,34 +6,9 @@ from collections import OrderedDict
 import helpers as helpers
 
 
-def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_all_seasons=False, include_outliers=False):
+def plot_24_hour_avg(hourly_demand, names, x_label, y_label, title, save):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
-
-    seasons = helpers.get_seasons_thresholds(do_all_seasons)
-    hourly_demand = OrderedDict()
-    hourly_demand_entries = OrderedDict()
-
-    # Initialize to zeros
-    for season in seasons.keys() :
-        hourly_demand[season] = np.zeros(24)
-        hourly_demand_entries[season] = np.zeros(24)  # For averaging
-
-    # Fill and get number of entries
-    for d in hourly_data_set:
-        if d.missing: continue
-        if d.outlier: 
-            if not include_outliers:
-                continue
-        for season in seasons.keys() :
-            if d.month >= seasons[season][0] and d.month <= seasons[season][1]:
-                hourly_demand[season][d.daily_hour-1] += d.demand
-                hourly_demand_entries[season][d.daily_hour-1] += 1
-
-    # Average
-    for season in seasons.keys() :
-        for i in range(len(hourly_demand[season])):
-            hourly_demand[season][i] = hourly_demand[season][i] / hourly_demand_entries[season][i]
 
     hours = [i for i in range(1, 25)]
 
@@ -41,10 +16,11 @@ def plot_24_hour_avg(hourly_data_set, names, x_label, y_label, title, save, do_a
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     plt.title(title)
-    for season in seasons.keys() :
+    for season in hourly_demand.keys() :
         ax.plot(hours, hourly_demand[season], 'o', label=season)
     plt.legend()
     plt.savefig("plots/"+save+".png")
+    return hourly_demand
 
 
 def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
