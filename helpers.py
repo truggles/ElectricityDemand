@@ -9,16 +9,47 @@ def percentiles(x, val):
 
 # An ordered dict with the months and their start and stop month
 # roughly corresponding to seasons
-def get_seasons_thresholds(do_all_seasons=False): 
-    seasons = OrderedDict()
+def get_time_slice_thresholds(time_slice_choice=0): 
+    assert(time_slice_choice in [0, 1, 2, 3]), "time_slice_choice=%i, 0 = only annual, 1 = seasonal, 2 = monthly w/ +/- 1 month for averaging, 3 = monthly" % time_slice_choice
+
+    time_slices = OrderedDict()
     # season : min, max month
-    seasons['Annual'] = [1, 12]
-    if do_all_seasons:
-        seasons['Winter'] = [1, 3]
-        seasons['Spring'] = [4, 6]
-        seasons['Summer'] = [7, 9]
-        seasons['Fall'] = [10, 12]
-    return seasons
+    if time_slice_choice==0:
+        time_slices['Annual'] = [1, 12]
+    elif time_slice_choice==1:
+        time_slices['Winter'] = [1, 3]
+        time_slices['Spring'] = [4, 6]
+        time_slices['Summer'] = [7, 9]
+        time_slices['Fall'] = [10, 12]
+    # +/- 1 month for larger avg
+    elif time_slice_choice==2:
+        time_slices['January'] = [12, 2]
+        time_slices['February'] = [1, 3]
+        time_slices['March'] = [2, 4]
+        time_slices['April'] = [3, 5]
+        time_slices['May'] = [4, 6]
+        time_slices['June'] = [5, 7]
+        time_slices['July'] = [6, 8]
+        time_slices['August'] = [7, 9]
+        time_slices['September'] = [8, 10]
+        time_slices['October'] = [9, 11]
+        time_slices['November'] = [10, 12]
+        time_slices['December'] = [11, 1]
+    # month for larger avg
+    elif time_slice_choice==3:
+        time_slices['January'] = [1, 1]
+        time_slices['February'] = [2, 2]
+        time_slices['March'] = [3, 3]
+        time_slices['April'] = [4, 4]
+        time_slices['May'] = [5, 5]
+        time_slices['June'] = [6, 6]
+        time_slices['July'] = [7, 7]
+        time_slices['August'] = [8, 8]
+        time_slices['September'] = [9, 9]
+        time_slices['October'] = [10, 10]
+        time_slices['November'] = [11, 11]
+        time_slices['December'] = [12, 12]
+    return time_slices
 
 # Print "normal" average and average based only on values within defined IQR range
 def check_avgs(x, val, name='', verbose=False):
@@ -32,11 +63,12 @@ def check_avgs(x, val, name='', verbose=False):
     return np.average(x), np.average(x_iqr)
 
 # Loop check_avgs for 5 seasonal scenarios
-def check_seasonal_avgs(hourly_data, val, do_all_seasons=False):
-    seasons = get_seasons_thresholds(do_all_seasons)
-    for season in seasons.keys():
+def check_seasonal_avgs(hourly_data, val, time_slice_choice=0):
+    assert(time_slice_choice in [0, 1, 2, 3]), "time_slice_choice=%i, 0 = only annual, 1 = seasonal, 2 = monthly w/ +/- 1 month for averaging, 3 = monthly" % time_slice_choice
+    time_slices = get_time_slice_thresholds(time_slice_choice)
+    for time_slice in time_slices.keys():
         x = [d.demand for d in hourly_data if (not d.missing and 
-                (d.month >= seasons[season][0] and d.month <= seasons[season][1]))]
-        check_avgs(x, val, season, True)
+                (d.month >= time_slices[time_slice][0] and d.month <= time_slices[time_slice][1]))]
+        check_avgs(x, val, time_slice, True)
 
     

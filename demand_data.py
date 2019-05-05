@@ -169,14 +169,20 @@ class DemandData :
                 self.hourly_data[i].set_centered_iqr_average(0.)
 
 
-    def set_hourly_demand(self, do_all_seasons=False, include_outliers=False):
-        seasons = helpers.get_seasons_thresholds(do_all_seasons)
+    # Create average 24 hour demand curves for different time slices
+    # 0 = only annual
+    # 1 = seasonal
+    # 2 = monthly w/ +/- 1 month for averaging
+    def set_hourly_demand(self, time_slice_choice=0, include_outliers=False):
+        assert(time_slice_choice in [0, 1, 2, 3]), "time_slice_choice=%i, 0 = only annual, 1 = seasonal, 2 = monthly w/ +/- 1 month for averaging, 3 = monthly" % time_slice_choice
+
+        time_slices = helpers.get_time_slice_thresholds(time_slice_choice)
         hourly_demand_entries = OrderedDict()
 
         # Initialize to zeros
-        for season in seasons.keys() :
-            self.hourly_demand[season] = np.zeros(24)
-            hourly_demand_entries[season] = np.zeros(24)  # For averaging
+        for time_slice in time_slices.keys() :
+            self.hourly_demand[time_slice] = np.zeros(24)
+            hourly_demand_entries[time_slice] = np.zeros(24)  # For averaging
 
         # Fill and get number of entries
         for d in self.hourly_data:
@@ -184,14 +190,14 @@ class DemandData :
             if d.outlier: 
                 if not include_outliers:
                     continue
-            for season in seasons.keys() :
-                if d.month >= seasons[season][0] and d.month <= seasons[season][1]:
-                    self.hourly_demand[season][d.daily_hour-1] += d.demand
-                    hourly_demand_entries[season][d.daily_hour-1] += 1
+            for time_slice in time_slices.keys() :
+                if d.month >= time_slices[time_slice][0] and d.month <= time_slices[time_slice][1]:
+                    self.hourly_demand[time_slice][d.daily_hour-1] += d.demand
+                    hourly_demand_entries[time_slice][d.daily_hour-1] += 1
 
         # Average
-        for season in seasons.keys() :
-            for i in range(len(self.hourly_demand[season])):
-                self.hourly_demand[season][i] = self.hourly_demand[season][i] / hourly_demand_entries[season][i]
+        for time_slice in time_slices.keys() :
+            for i in range(len(self.hourly_demand[time_slice])):
+                self.hourly_demand[time_slice][i] = self.hourly_demand[time_slice][i] / hourly_demand_entries[time_slice][i]
 
 
