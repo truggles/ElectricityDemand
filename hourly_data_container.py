@@ -8,6 +8,7 @@ class HourlyDataContainer:
 
     # Info
     self.hour
+    self.daily_hour
     self.raw_demand # no substitutions or corrections
     self.demand
 
@@ -18,6 +19,13 @@ class HourlyDataContainer:
     # Comparisons with previous and following points
     self.delta_previous
     self.delta_following
+
+    # Different averages
+    self.daily_avg
+    self.centered_average
+    self.centered_iqr_average
+    self.demand_estimate
+    self.demand_estimate2
     """
 
     def __init__(self, hour, daily_hour, date, uct_time, demand):
@@ -99,3 +107,27 @@ class HourlyDataContainer:
         assert(type(val) == float or type(val) == np.float64)
         self.centered_iqr_average = val
         return
+
+
+    def set_demand_estimate(self, val):
+
+        assert(type(val) == float or type(val) == np.float64)
+        self.demand_estimate = val
+        return
+
+
+    def set_demand_estimate2(self, val):
+
+        assert(type(val) == float or type(val) == np.float64)
+        self.demand_estimate2 = val
+        return
+
+
+    def set_demand_estimate3(self, val):
+
+        assert(type(val) == float or type(val) == np.float64)
+        self.demand_estimate3 = val
+        return
+
+
+

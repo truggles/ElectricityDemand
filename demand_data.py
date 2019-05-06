@@ -22,6 +22,7 @@ class DemandData :
         self.date_position = 1 # Position of local date in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
 
         self.hourly_demand = OrderedDict() # Can be filled later with set_hourly_demand
+        self.hourly_demand_avgs = OrderedDict() # Can be filled later with set_hourly_demand
 
         print (self.region, self.year)
 
@@ -199,5 +200,60 @@ class DemandData :
         for time_slice in time_slices.keys() :
             for i in range(len(self.hourly_demand[time_slice])):
                 self.hourly_demand[time_slice][i] = self.hourly_demand[time_slice][i] / hourly_demand_entries[time_slice][i]
+
+        # Set time_slice specific averages
+        for time_slice in time_slices.keys() :
+            self.hourly_demand_avgs[time_slice] = np.average(self.hourly_demand[time_slice])
+
+
+
+    # Use self.hourly_demand[time_slices][24 hours] to set info for each demand hour
+    # for expected usage
+    def set_24_hourly_demand(self):
+        assert(len(self.hourly_demand) > 0), "You must first call set_hourly_demand to build the self.hourly_demand dict"
+
+        time_slice_map = {}
+        if 'Annual' in self.hourly_demand.keys():
+            for i in range(1, 13):
+                time_slice_map[i] = 'Annual'
+        elif 'Winter' in self.hourly_demand.keys():
+            time_slice_map[1] = 'Winter'
+            time_slice_map[2] = 'Winter'
+            time_slice_map[3] = 'Winter'
+            time_slice_map[4] = 'Spring'
+            time_slice_map[5] = 'Spring'
+            time_slice_map[6] = 'Spring'
+            time_slice_map[7] = 'Summer'
+            time_slice_map[8] = 'Summer'
+            time_slice_map[9] = 'Summer'
+            time_slice_map[10] = 'Fall'
+            time_slice_map[11] = 'Fall'
+            time_slice_map[12] = 'Fall'
+        elif 'January' in self.hourly_demand.keys():
+            time_slice_map[1] = 'January'
+            time_slice_map[2] = 'February'
+            time_slice_map[3] = 'March'
+            time_slice_map[4] = 'April'
+            time_slice_map[5] = 'May'
+            time_slice_map[6] = 'June'
+            time_slice_map[7] = 'July'
+            time_slice_map[8] = 'August'
+            time_slice_map[9] = 'September'
+            time_slice_map[10] = 'October'
+            time_slice_map[11] = 'November'
+            time_slice_map[12] = 'December'
+        else:
+            print ("Did not align..., set_24_hourly_demand in demand_data.py")
+            return
+
+        # For each hour, map the month to the time slice name.
+        # Grab the associated self.hourly_demand for that time slice and set it.
+        for d in self.hourly_data:
+            val = self.hourly_demand[time_slice_map[d.month]][d.daily_hour-1]
+            d.set_demand_estimate(val)
+            val -= self.hourly_demand_avgs[time_slice_map[d.month]]
+            d.set_demand_estimate2(val)
+            val += d.centered_iqr_average
+            d.set_demand_estimate3(val)
 
 

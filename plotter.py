@@ -79,6 +79,7 @@ def plot_demand_with_daily(fig, ax, daily_x, daily_y, save, title='24 Hour Avg')
     return fig, ax
 
 def plot_demand_comparisons(x_val_vec, y_val_vec, title_vec, name):
+    assert(len(x_val_vec) == len(y_val_vec) and len(y_val_vec) == len(title_vec))
     matplotlib.rcParams['figure.figsize'] = (14.0, 6.0)
     fig, ax = plt.subplots()
     ax.set_xlabel('Hour')
