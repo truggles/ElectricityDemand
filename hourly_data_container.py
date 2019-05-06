@@ -25,7 +25,7 @@ class HourlyDataContainer:
     self.centered_average
     self.centered_iqr_average
     self.demand_estimate
-    self.demand_estimate2
+    self.demand_estimate_outlier
     """
 
     def __init__(self, hour, daily_hour, date, uct_time, demand):
@@ -60,6 +60,8 @@ class HourlyDataContainer:
         self.daily_avg = -99.99
         self.centered_average = -99.99
         self.centered_iqr_average = -99.99
+        self.demand_estimate = -99.99
+        self.demand_estimate_outlier = False
 
     # Print all values
     def __str__(self):
@@ -116,18 +118,13 @@ class HourlyDataContainer:
         return
 
 
-    def set_demand_estimate2(self, val):
+    def set_demand_estimate_outlier(self, outlier=True):
 
-        assert(type(val) == float or type(val) == np.float64)
-        self.demand_estimate2 = val
+        assert(type(outlier) == type(True))
+        self.demand_estimate_outlier = outlier
         return
 
 
-    def set_demand_estimate3(self, val):
-
-        assert(type(val) == float or type(val) == np.float64)
-        self.demand_estimate3 = val
-        return
 
 
 

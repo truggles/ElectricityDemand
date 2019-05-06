@@ -21,6 +21,7 @@ class DemandData :
         self.hour_position = 2 # Position of local daily hour use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
         self.date_position = 1 # Position of local date in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
 
+        self.n_hours_surrounding = 24 # Default to do 24 hrs prior and post for running avgs
         self.hourly_demand = OrderedDict() # Can be filled later with set_hourly_demand
         self.hourly_demand_avgs = OrderedDict() # Can be filled later with set_hourly_demand
 
@@ -127,9 +128,7 @@ class DemandData :
 
 
 
-    def compute_hour_centered_averages(self, n_hours_surrounding=24, iqr_val=25):
-
-        assert(n_hours_surrounding > 0 and type(n_hours_surrounding)==int)
+    def compute_hour_centered_averages(self, iqr_val=25):
 
         n_hours = len(self.hourly_data)
 
@@ -145,15 +144,15 @@ class DemandData :
         assert(n_hours == len(running_hours))
         for i in range(len(running_hours)):
             # fill with dummy val if we don't have full range requested
-            if i < n_hours_surrounding or i > n_hours - n_hours_surrounding:
+            if i < self.n_hours_surrounding or i > n_hours - self.n_hours_surrounding:
                 self.hourly_data[i].set_centered_average(0.)
                 self.hourly_data[i].set_centered_iqr_average(0.)
                 continue
 
-            # demand for the hours surrounding the current hour giving 2 * n_hours_surrounding total
+            # demand for the hours surrounding the current hour giving 2 * self.n_hours_surrounding total
             # +1 extends to n past the current hour
-            surrounding_vals = running_hours[i - n_hours_surrounding : i + n_hours_surrounding] 
-            assert(len(surrounding_vals) == 2*n_hours_surrounding)
+            surrounding_vals = running_hours[i - self.n_hours_surrounding : i + self.n_hours_surrounding] 
+            assert(len(surrounding_vals) == 2*self.n_hours_surrounding)
 
             # Remove missing values
             new_vals = []
@@ -250,10 +249,15 @@ class DemandData :
         # Grab the associated self.hourly_demand for that time slice and set it.
         for d in self.hourly_data:
             val = self.hourly_demand[time_slice_map[d.month]][d.daily_hour-1]
-            d.set_demand_estimate(val)
             val -= self.hourly_demand_avgs[time_slice_map[d.month]]
-            d.set_demand_estimate2(val)
             val += d.centered_iqr_average
-            d.set_demand_estimate3(val)
+            d.set_demand_estimate(val)
+
+            if d.hour<self.n_hours_surrounding: continue # b/c no 48 hour centered avg for the first and last day
+            if d.hour>(365*24)-self.n_hours_surrounding: continue
+            if ((d.demand - d.demand_estimate)/d.demand)<-0.5 or \
+                    ((d.demand - d.demand_estimate)/d.demand)>0.5:
+                d.set_demand_estimate_outlier(True)
+
 
 
