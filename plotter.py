@@ -23,7 +23,7 @@ def plot_24_hour_avg(hourly_demand, names, x_label, y_label, title, save):
     return hourly_demand
 
 
-def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
+def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=False):
 
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
     x.sort() # to use for x range
@@ -38,6 +38,8 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False):
     plt.grid(True)
     if logY:
         plt.yscale('log', nonposy='clip')
+    if logX:
+        plt.xscale('log', nonposx='clip')
     plt.savefig("plots/"+save+".png")
     return plt
 
@@ -92,4 +94,31 @@ def plot_demand_comparisons(x_val_vec, y_val_vec, title_vec, name):
     plt.grid()
     plt.savefig("plots/"+name+".png")
     return fig, ax
+
+# Progress along input values and make hist binned in size of missing entries
+def histogram_gaps( vals, title, save, n_bins=100, logY=False, logX=False):
+    
+    gap_recorder = [] # Keep track of the size of the gaps
+
+    previous_entry_was_gap = False
+    running_gap_length = 0
+    for val in vals:
+        if val == -99.99: # Gap detected
+            running_gap_length += 1
+            previous_entry_was_gap = True
+        elif previous_entry_was_gap == True: # Gap is finished, fill entry
+            previous_entry_was_gap = False
+            gap_recorder.append(running_gap_length)
+            running_gap_length = 0
+        else: # Complete data previously, complete data now
+            continue
+
+    print(gap_recorder)
+
+    plot_hist(gap_recorder, 'Data Gap Size', 'Occurances', title, save, n_bins, logY, logX)
+    
+
+
+
+
 

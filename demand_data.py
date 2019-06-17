@@ -173,6 +173,7 @@ class DemandData :
     # 0 = only annual
     # 1 = seasonal
     # 2 = monthly w/ +/- 1 month for averaging
+    # 3 = monthly
     def set_hourly_demand(self, time_slice_choice=0, include_outliers=False):
         assert(time_slice_choice in [0, 1, 2, 3]), "time_slice_choice=%i, 0 = only annual, 1 = seasonal, 2 = monthly w/ +/- 1 month for averaging, 3 = monthly" % time_slice_choice
 
