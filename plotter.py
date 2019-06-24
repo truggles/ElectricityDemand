@@ -28,7 +28,14 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=Fal
     matplotlib.rcParams['figure.figsize'] = (6.0, 4.0)
     x.sort() # to use for x range
     fig, ax = plt.subplots()
-    n, bins, patches = plt.hist(x, n_bins, range=[x[0], x[-1]], facecolor='g', alpha=0.75)
+    if len(x) > 0:
+        r_low = x[0]
+        r_high = x[-1]
+    else:
+        r_low = 0
+        r_high = 10
+        n_bins = 10
+    n, bins, patches = plt.hist(x, n_bins, range=[r_low, r_high], facecolor='g', alpha=0.75)
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
