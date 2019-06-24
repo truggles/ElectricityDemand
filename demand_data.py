@@ -11,60 +11,44 @@ class DemandData :
     relevant info for each hour of demand data """
 
 
-    def __init__(self, region, year):
+    def __init__(self, region):
 
         self.region = region
-        self.year = year
         self.hourly_data = []
-        self.demand_position = 6 # Position of reported demand use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
-        self.uct_time_position = 4 # Position of UCT time in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
-        self.hour_position = 2 # Position of local daily hour use in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
-        self.date_position = 1 # Position of local date in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
+        self.demand_position = 2 # Position of reported demand use
+        self.uct_time_position = 1 # Position of UCT time in Dan's current EIA930_BALANCE_[year]_[monts].csv data 
 
         self.n_hours_surrounding = 24 # Default to do 24 hrs prior and post for running avgs
         self.hourly_demand = OrderedDict() # Can be filled later with set_hourly_demand
         self.hourly_demand_avgs = OrderedDict() # Can be filled later with set_hourly_demand
 
-        print (self.region, self.year)
+        print (self.region)
 
-        with open("EIA_demand_data/EIA930_BALANCE_%s_Jan_Jun.csv" % self.year, 'r') as f:
-            info1 = list(csv.reader(f, delimiter=","))
-        with open("EIA_demand_data/EIA930_BALANCE_%s_Jul_Dec.csv" % self.year, 'r') as f:
-            info2 = list(csv.reader(f, delimiter=","))
+        with open("data/{}.csv".format(self.region), 'r') as f:
+            info = list(csv.reader(f, delimiter=","))
 
         # Continue the hour notation at previous entry
         # and increment by 1 unless it's the first entry
         hour = 0
-        for info in [info1, info2]:
-            for line in info:
+        for line in info:
 
-                # Ensure demand is listed in expected column and
-                # Skip header line
-                if 'Balancing Authority' in line:
-                    if line[self.demand_position] != 'Demand (MW)':
-                        print ("\n\nDemand listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
-                        break
-                    if line[self.uct_time_position] != 'UTC Time at End of Hour':
-                        print ("\n\nUTC Time at End of Hour listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
-                        break
-                    if line[self.date_position] != 'Data Date':
-                        print ("\n\nData Date listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
-                        break
-                    if line[self.hour_position] != 'Hour Number':
-                        print ("\n\nHour listed in unexpected column: region %s, year %s. Break\n\n" % (self.region, self.year))
-                        break
-                    continue
-                # Make sure to match region of interest
-                if line[0] != self.region:
-                    continue
+            # Ensure demand is listed in expected column and
+            # Skip header line
+            if 'series_id' in line:
+                if line[self.demand_position] != 'demand (MW)':
+                    print ("\n\nDemand listed in unexpected column: region {}. Break\n\n".format(self.region))
+                    break
+                if line[self.uct_time_position] != 'time':
+                    print ("\n\nUTC Time listed in unexpected column: region {}. Break\n\n".format(self.region))
+                    break
+                continue
 
-                # Initialize an HourlyDataContainer for this hour
-                self.hourly_data.append( HourlyDataContainer(hour, 
-                    line[self.hour_position],
-                    line[self.date_position],
-                    line[self.uct_time_position],
-                    line[self.demand_position]) )
-                hour += 1
+
+            # Initialize an HourlyDataContainer for this hour
+            self.hourly_data.append( HourlyDataContainer(hour, 
+                line[self.uct_time_position],
+                line[self.demand_position]) )
+            hour += 1
 
         # For all hourly data, make delta comparisons
         # Skip first and last hours

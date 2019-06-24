@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 
 
 
@@ -28,7 +29,7 @@ class HourlyDataContainer:
     self.demand_estimate_outlier
     """
 
-    def __init__(self, hour, daily_hour, date, uct_time, demand):
+    def __init__(self, hour, uct_time, demand):
 
         self.hour = hour
 
@@ -36,17 +37,14 @@ class HourlyDataContainer:
         #hour_info = local_hour.split(' ')
         #pm_adjust = 0 if hour_info[2] == 'AM' else 12
         #self.daily_hour = int(hour_info[1].split(':')[0]) + pm_adjust #- 1 # -1 for python list indexing
-        self.daily_hour = int(daily_hour)
-        if self.daily_hour > 24: self.daily_hour = 24 # Not sure why, but there are a few errors for date 11/05/2018
-        self.month = int(date.split('/')[0])
-        # CSV values greater than 1,000 are stored as strings with ',' that need removing
-        self.raw_demand = demand.replace(',','')
-
-        self.demand = self.raw_demand
+        uct = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
+        self.daily_hour = uct.hour
+        self.month = uct.month
+        self.demand = demand
         # Set missing data to a default value
-        if self.demand == '':
+        if self.demand == 'MISSING' or self.demand == 'EMPTY':
             self.missing = True
-            self.demand = '-99.99'
+            self.demand = -99.99
         else:
             self.missing = False
 
