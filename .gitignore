@@ -7,3 +7,4 @@ plots/*
 documentation/*
 data
 data/*
+.DS_Store

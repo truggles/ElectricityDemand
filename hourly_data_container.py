@@ -38,6 +38,7 @@ class HourlyDataContainer:
         #pm_adjust = 0 if hour_info[2] == 'AM' else 12
         #self.daily_hour = int(hour_info[1].split(':')[0]) + pm_adjust #- 1 # -1 for python list indexing
         uct = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
+        self.uct_string = uct_time
         self.daily_hour = uct.hour
         self.month = uct.month
         self.demand = demand

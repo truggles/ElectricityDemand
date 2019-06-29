@@ -37,6 +37,18 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=Fal
         n_bins = 10
     n, bins, patches = plt.hist(x, n_bins, range=[r_low, r_high], facecolor='g', alpha=0.75)
 
+    # The commented code below isn't working yet
+    ## Adjust ticks and labels if variable binning
+    #if type(n_bins) == type([]):
+    #    # Set the ticks to be at the edges of the bins.
+    #    print(bins)
+    #    ax.xaxis.set_major_locator(plt.MultipleLocator( bins ))
+    #    #ax.set_xticks(bins)
+    #    #print("Ticks: {}".format(ax.get_xticks()))
+    #    #ax.set_xticklabels(bins)
+    #    # Set the xaxis's tick labels to be formatted with 1 decimal place...
+    #    #ax.xaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter('%0.0f'))
+
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
