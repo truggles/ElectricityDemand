@@ -244,5 +244,52 @@ class DemandData :
                     ((d.demand - d.demand_estimate)/d.demand)>0.5:
                 d.set_demand_estimate_outlier(True)
 
+    # Calculate the seasonal averages for the whole data range
+    def calculate_seasonal_averages(self):
+        seasons = OrderedDict()
+        seasons['Winter'] = [1, 2, 3]
+        seasons['Spring'] = [4, 5, 6]
+        seasons['Summer'] = [7, 8, 9]
+        seasons['Fall'] = [10, 11, 12]
 
+        season_vals = OrderedDict()
+        for season in seasons.keys():
+            season_vals[season] = []
+
+        # Loop over all hours and add their demand to the appropriate season
+        for hour in self.hourly_data:
+            for season, vals in season_vals.items():
+                if hour.month in seasons[season]:
+                    vals.append(hour.demand)
+        
+        return season_vals
+
+    # Calculate the monthly averages for the whole data range
+    def calculate_monthly_averages(self):
+        months = OrderedDict()
+        months['January'] = 1
+        months['February'] = 2
+        months['March'] = 3
+        months['April'] = 4
+        months['May'] = 5
+        months['June'] = 6
+        months['July'] = 7
+        months['August'] = 8
+        months['September'] = 9
+        months['October'] = 10
+        months['November'] = 11
+        months['December'] = 12
+
+        month_vals = OrderedDict()
+        for month in months.keys():
+            month_vals[month] = []
+
+        # Loop over all hours and add their demand to the appropriate month
+        for hour in self.hourly_data:
+            for month, vals in month_vals.items():
+                if hour.month == months[month]:
+                    vals.append(hour.demand)
+        
+        return month_vals
+            
 
