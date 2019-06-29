@@ -37,10 +37,10 @@ class HourlyDataContainer:
         #hour_info = local_hour.split(' ')
         #pm_adjust = 0 if hour_info[2] == 'AM' else 12
         #self.daily_hour = int(hour_info[1].split(':')[0]) + pm_adjust #- 1 # -1 for python list indexing
-        uct = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
+        self.datetime = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
         self.uct_string = uct_time
-        self.daily_hour = uct.hour
-        self.month = uct.month
+        self.daily_hour = self.datetime.hour
+        self.month = self.datetime.month
         self.demand = demand
         # Set missing data to a default value
         if self.demand == 'MISSING' or self.demand == 'EMPTY':
@@ -66,6 +66,10 @@ class HourlyDataContainer:
     def __str__(self):
         return ("HourlyDataContainer: hour %i, raw_demand %s, demand %.1f, missing %s, outlier %s, deltas_valid %s, delta_prev %.1f, delta_follow %.1f" % \
                 (self.hour, self.raw_demand, self.demand, self.missing, self.outlier, self.deltas_valid, self. delta_previous, self.delta_following))
+
+    # To reset demand
+    def set_demand(self, new_demand):
+        self.demand = new_demand
 
     # Compute demand deltas by comparing to previous and following hours
     def compute_deltas(self, previous_data, following_data):

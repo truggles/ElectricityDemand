@@ -4,6 +4,7 @@ from matplotlib.pyplot import figure
 import numpy as np
 from collections import OrderedDict
 import helpers as helpers
+import matplotlib.dates as mdates # For date formatting
 
 
 def plot_24_hour_avg(hourly_demand, names, x_label, y_label, title, save):
@@ -66,6 +67,7 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=Fal
 def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[]):
 
     matplotlib.rcParams['figure.figsize'] = (14.0, 6.0)
+    months = mdates.MonthLocator()  # every month
     fig, ax = plt.subplots()
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
@@ -73,7 +75,7 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
 
     y_max = 0.
     for hourly_data_set, name in zip(hourly_data_sets, names):
-        x = [hour_data.hour for hour_data in hourly_data_set]
+        x = [hour_data.datetime for hour_data in hourly_data_set]
         y = [hour_data.demand for hour_data in hourly_data_set]
         this_max = max(y) if len(y) > 0 else 0
         if this_max > y_max:
@@ -86,6 +88,14 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
         old_y_min, old_y_max = ax.get_ylim()
         ax.set_ylim(old_y_min, y_max * 1.1)
 
+    # y-axis commas in thousands if large numbers, with no decimals
+    # else 1 decimal place printed
+    if y_max > 50:
+        ax.yaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
+    else:
+        ax.yaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter('{x:,.1f}'))
+
+    ax.xaxis.set_minor_locator(months)
     plt.legend()
     plt.grid()
     plt.savefig("plots/"+save+".png")
