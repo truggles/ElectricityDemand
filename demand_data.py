@@ -262,7 +262,7 @@ class DemandData :
         for hour in self.hourly_data:
             for year, vals in years.items():
                 if hour.datetime.year == year:
-                    vals[1].append(hour.demand)
+                    vals[1].append(hour.value)
 
         # Add mean values
         for year, vals in years.items():
@@ -277,7 +277,7 @@ class DemandData :
     # calculate_annaul_averages()
     def normalize_to_annual_averages(self, annual_info):
         for hour in self.hourly_data:
-            hour.set_demand(hour.demand / annual_info[hour.datetime.year][2])
+            hour.set_demand(hour.value / annual_info[hour.datetime.year][2])
 
 
     # Calculate the seasonal averages for the whole data range
@@ -288,7 +288,7 @@ class DemandData :
         seasons['Summer'] = [7, 8, 9]
         seasons['Fall'] = [10, 11, 12]
 
-        data_dict = self.get_years_in_data()
+        data_dict = helpers.get_years_in_data(self.hourly_data)
         for year in data_dict.keys():
             data_dict[year] = OrderedDict()
             for season in seasons.keys():
@@ -298,7 +298,7 @@ class DemandData :
         for hour in self.hourly_data:
             for season, months in seasons.items():
                 if hour.month in months:
-                    data_dict[hour.datetime.year][season].append(hour.demand)
+                    data_dict[hour.datetime.year][season].append(hour.value)
                     break
         
         # Replace lists with mean value before returning
@@ -323,7 +323,7 @@ class DemandData :
         months[11] = 'November'
         months[12] = 'December'
 
-        data_dict = self.get_years_in_data()
+        data_dict = helpers.get_years_in_data(self.hourly_data)
         for year in data_dict.keys():
             data_dict[year] = OrderedDict()
             for month, name in months.items():
@@ -331,7 +331,7 @@ class DemandData :
 
         # Loop over all hours and add their demand to the appropriate year and season
         for hour in self.hourly_data:
-            data_dict[hour.datetime.year][months[hour.datetime.month]].append(hour.demand)
+            data_dict[hour.datetime.year][months[hour.datetime.month]].append(hour.value)
         
         # Replace lists with mean value before returning
         for year, months_names in data_dict.items():
@@ -353,14 +353,4 @@ class DemandData :
 
         # Remove years with less than full hourly data
         self.hourly_data = [hour for hour in self.hourly_data if years[hour.datetime.year] >= 8760]
-
-    # Get list of all years
-    def get_years_in_data(self):
-        years = OrderedDict()
-        for hour in self.hourly_data:
-            if not hour.datetime.year in years:
-                years[hour.datetime.year] = ''
-        return years
-
-
 

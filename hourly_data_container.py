@@ -1,9 +1,9 @@
 import numpy as np
 import datetime
+from simple_container import SimpleContainer
 
 
-
-class HourlyDataContainer:
+class HourlyDataContainer(SimpleContainer):
     """ Class that contains a single hour's electric demand.  
     It will contain info and flags as well
 
@@ -51,6 +51,8 @@ class HourlyDataContainer:
 
         self.demand = float(self.demand)
 
+        SimpleContainer.__init__(self, uct_time, self.demand)
+
         # Defaults, these will be computed later
         self.outlier = False # Innocent until proven guilty
         self.deltas_valid = False # Must pass check before True
@@ -70,6 +72,7 @@ class HourlyDataContainer:
     # To reset demand
     def set_demand(self, new_demand):
         self.demand = new_demand
+        self.set_value(new_demand)
 
     # Compute demand deltas by comparing to previous and following hours
     def compute_deltas(self, previous_data, following_data):

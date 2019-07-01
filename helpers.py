@@ -97,3 +97,13 @@ def month_num_to_month_str(month):
     if month == 12: return 'December'
 
 
+
+# Get list of all years
+def get_years_in_data(hourly_data):
+    years = OrderedDict()
+    for hour in hourly_data:
+        if not hour.datetime.year in years:
+            years[hour.datetime.year] = ''
+    return years
+
+
