@@ -101,6 +101,20 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     plt.savefig("plots/"+save+".png")
     return fig, ax
 
+# Add annual means lines over the top
+def plot_demand_with_annual_means(fig, ax, x_vals, year_info, save, title='Demand with Annual Means'):
+    annual_vals = []
+    for k, v in year_info.items():
+        for h in range(len(v[1])):
+            annual_vals.append(v[2])
+
+
+    ax.plot(x_vals, annual_vals, 'o', label=title)
+    plt.legend()
+    plt.grid()
+    plt.savefig("plots/"+save+".png")
+    return fig, ax
+
 
 def plot_demand_with_daily(fig, ax, daily_x, daily_y, save, title='24 Hour Avg'):
     ax.plot(daily_x, daily_y, 'o', label=title)

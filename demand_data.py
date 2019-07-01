@@ -244,6 +244,42 @@ class DemandData :
                     ((d.demand - d.demand_estimate)/d.demand)>0.5:
                 d.set_demand_estimate_outlier(True)
 
+    # Calculate the annaul averages for each year in our data.
+    # Some means will not include a full year
+    def calculate_annaul_averages(self):
+        years = OrderedDict()
+        # Get list of all years
+        # First value in list tracks number of hours for that year
+        # in the data
+        for hour in self.hourly_data:
+            if not hour.datetime.year in years.keys():
+                years[hour.datetime.year] = [1, []]
+            else:
+                years[hour.datetime.year][0] += 1
+
+
+        # Loop over all hours and add their demand to the appropriate year
+        for hour in self.hourly_data:
+            for year, vals in years.items():
+                if hour.datetime.year == year:
+                    vals[1].append(hour.demand)
+
+        # Add mean values
+        for year, vals in years.items():
+            vals.append(np.mean(vals[1]))
+            if vals[0] < 8760:
+                print("WARNING: you are using calculate_annaul_averages with \
+                        partial data for year {}".format(year))
+        
+        return years
+
+    # Adjust demand based on annual averages derived from
+    # calculate_annaul_averages()
+    def normalize_to_annual_averages(self, annual_info):
+        for hour in self.hourly_data:
+            hour.set_demand(hour.demand / annual_info[hour.datetime.year][2])
+
+
     # Calculate the seasonal averages for the whole data range
     def calculate_seasonal_averages(self):
         seasons = OrderedDict()
