@@ -71,4 +71,29 @@ def check_seasonal_avgs(hourly_data, val, time_slice_choice=0):
                 (d.month >= time_slices[time_slice][0] and d.month <= time_slices[time_slice][1]))]
         check_avgs(x, val, time_slice, True)
 
-    
+# Get associated season with monthly input
+def month_num_to_season_str(month):
+    assert(month in range(1, 13))
+    if month in [1, 2, 3]: return 'Winter'
+    if month in [4, 5, 6]: return 'Spring'
+    if month in [7, 8, 9]: return 'Summer'
+    if month in [10, 11, 12]: return 'Fall'
+
+# Get associated season with monthly input
+def month_num_to_month_str(month):
+    assert(month in range(1, 13))
+
+    if month == 1: return 'January'
+    if month == 2: return 'February'
+    if month == 3: return 'March'
+    if month == 4: return 'April'
+    if month == 5: return 'May'
+    if month == 6: return 'June'
+    if month == 7: return 'July'
+    if month == 8: return 'August'
+    if month == 9: return 'September'
+    if month == 10: return 'October'
+    if month == 11: return 'November'
+    if month == 12: return 'December'
+
+

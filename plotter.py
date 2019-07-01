@@ -102,14 +102,40 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     return fig, ax
 
 # Add annual means lines over the top
-def plot_demand_with_annual_means(fig, ax, x_vals, year_info, save, title='Demand with Annual Means'):
-    annual_vals = []
-    for k, v in year_info.items():
+def plot_demand_with_annual_means(fig, ax, x_vals, info, save, title='Annual Mean Values'):
+    vals = []
+    for k, v in info.items():
         for h in range(len(v[1])):
-            annual_vals.append(v[2])
+            vals.append(v[2])
 
 
-    ax.plot(x_vals, annual_vals, 'o', label=title)
+    ax.plot(x_vals, vals, 'o', label=title)
+    plt.legend()
+    plt.grid()
+    plt.savefig("plots/"+save+".png")
+    return fig, ax
+
+# Add seasonal means lines over the top
+def plot_demand_with_seasonal_means(fig, ax, x_vals, info, save, title='Seasonal Mean Values'):
+    vals = []
+    for time in x_vals:
+        season = helpers.month_num_to_season_str(time.month)
+        vals.append(info[time.year][season])
+
+    ax.plot(x_vals, vals, 'o', label=title)
+    plt.legend()
+    plt.grid()
+    plt.savefig("plots/"+save+".png")
+    return fig, ax
+
+
+# Add monthly means lines over the top
+def plot_demand_with_monthly_means(fig, ax, x_vals, info, save, title='Monthly Mean Values'):
+    vals = []
+    for time in x_vals:
+        vals.append(info[time.year][helpers.month_num_to_month_str(time.month)])
+
+    ax.plot(x_vals, vals, 'o', label=title)
     plt.legend()
     plt.grid()
     plt.savefig("plots/"+save+".png")

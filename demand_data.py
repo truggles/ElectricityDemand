@@ -288,44 +288,79 @@ class DemandData :
         seasons['Summer'] = [7, 8, 9]
         seasons['Fall'] = [10, 11, 12]
 
-        season_vals = OrderedDict()
-        for season in seasons.keys():
-            season_vals[season] = []
+        data_dict = self.get_years_in_data()
+        for year in data_dict.keys():
+            data_dict[year] = OrderedDict()
+            for season in seasons.keys():
+                data_dict[year][season] = []
 
-        # Loop over all hours and add their demand to the appropriate season
+        # Loop over all hours and add their demand to the appropriate year and season
         for hour in self.hourly_data:
-            for season, vals in season_vals.items():
-                if hour.month in seasons[season]:
-                    vals.append(hour.demand)
+            for season, months in seasons.items():
+                if hour.month in months:
+                    data_dict[hour.datetime.year][season].append(hour.demand)
+                    break
         
-        return season_vals
+        # Replace lists with mean value before returning
+        for year, seasons in data_dict.items():
+            for season in seasons.keys():
+                data_dict[year][season] = float(np.mean(data_dict[year][season]))
+        return data_dict
 
     # Calculate the monthly averages for the whole data range
     def calculate_monthly_averages(self):
         months = OrderedDict()
-        months['January'] = 1
-        months['February'] = 2
-        months['March'] = 3
-        months['April'] = 4
-        months['May'] = 5
-        months['June'] = 6
-        months['July'] = 7
-        months['August'] = 8
-        months['September'] = 9
-        months['October'] = 10
-        months['November'] = 11
-        months['December'] = 12
+        months[1] = 'January'
+        months[2] = 'February'
+        months[3] = 'March'
+        months[4] = 'April'
+        months[5] = 'May'
+        months[6] = 'June'
+        months[7] = 'July'
+        months[8] = 'August'
+        months[9] = 'September'
+        months[10] = 'October'
+        months[11] = 'November'
+        months[12] = 'December'
 
-        month_vals = OrderedDict()
-        for month in months.keys():
-            month_vals[month] = []
+        data_dict = self.get_years_in_data()
+        for year in data_dict.keys():
+            data_dict[year] = OrderedDict()
+            for month, name in months.items():
+                data_dict[year][name] = []
 
-        # Loop over all hours and add their demand to the appropriate month
+        # Loop over all hours and add their demand to the appropriate year and season
         for hour in self.hourly_data:
-            for month, vals in month_vals.items():
-                if hour.month == months[month]:
-                    vals.append(hour.demand)
+            data_dict[hour.datetime.year][months[hour.datetime.month]].append(hour.demand)
         
-        return month_vals
+        # Replace lists with mean value before returning
+        for year, months_names in data_dict.items():
+            for month in months_names.keys():
+                data_dict[year][month] = float(np.mean(data_dict[year][month]))
+        return data_dict
             
+    # Remove partial years from data
+    def remove_partial_years(self):
+        years = OrderedDict()
+        # Get list of all years
+        # First value in list tracks number of hours for that year
+        # in the data
+        for hour in self.hourly_data:
+            if not hour.datetime.year in years.keys():
+                years[hour.datetime.year] = 1
+            else:
+                years[hour.datetime.year] += 1
+
+        # Remove years with less than full hourly data
+        self.hourly_data = [hour for hour in self.hourly_data if years[hour.datetime.year] >= 8760]
+
+    # Get list of all years
+    def get_years_in_data(self):
+        years = OrderedDict()
+        for hour in self.hourly_data:
+            if not hour.datetime.year in years:
+                years[hour.datetime.year] = ''
+        return years
+
+
 
