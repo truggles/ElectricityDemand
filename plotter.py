@@ -76,7 +76,7 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
     y_max = 0.
     for hourly_data_set, name in zip(hourly_data_sets, names):
         x = [hour_data.datetime for hour_data in hourly_data_set]
-        y = [hour_data.demand for hour_data in hourly_data_set]
+        y = [hour_data.value for hour_data in hourly_data_set]
         this_max = max(y) if len(y) > 0 else 0
         if this_max > y_max:
             y_max = this_max

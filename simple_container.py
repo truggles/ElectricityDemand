@@ -14,6 +14,7 @@ class SimpleContainer:
     def __init__(self, uct_time, val):
 
         self.datetime = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
+        self.month = self.datetime.month
         self.value = val
 
     def set_value(self, new_val):

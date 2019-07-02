@@ -40,7 +40,6 @@ class HourlyDataContainer(SimpleContainer):
         self.datetime = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
         self.uct_string = uct_time
         self.daily_hour = self.datetime.hour
-        self.month = self.datetime.month
         self.demand = demand
         # Set missing data to a default value
         if self.demand == 'MISSING' or self.demand == 'EMPTY':
