@@ -36,7 +36,10 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=Fal
         r_low = 0
         r_high = 10
         n_bins = 10
-    n, bins, patches = plt.hist(x, n_bins, range=[r_low, r_high], facecolor='g', alpha=0.75)
+    if type(n_bins) == int:
+        n, bins, patches = plt.hist(x, n_bins, range=[r_low, r_high], facecolor='g', alpha=0.5)
+    else: # Variable list
+        n, bins, patches = plt.hist(x, n_bins, range=[r_low, r_high], facecolor='g', alpha=0.5, ec='black')
 
     # The commented code below isn't working yet
     ## Adjust ticks and labels if variable binning
@@ -184,7 +187,7 @@ def histogram_gaps( vals, title, save, n_bins=100, logY=False, logX=False):
 
     print(gap_recorder)
 
-    plot_hist(gap_recorder, 'Data Gap Size', 'Occurances', title, save, n_bins, logY, logX)
+    plot_hist(gap_recorder, 'Data Gap Size [hours]', 'Occurances', title, save, n_bins, logY, logX)
     
 
 
