@@ -79,7 +79,7 @@ def month_num_to_season_str(month):
     if month in [7, 8, 9]: return 'Summer'
     if month in [10, 11, 12]: return 'Fall'
 
-# Get associated season with monthly input
+# Get associated month name with numeric input
 def month_num_to_month_str(month):
     assert(month in range(1, 13))
 
@@ -97,6 +97,30 @@ def month_num_to_month_str(month):
     if month == 12: return 'December'
 
 
+# Get associated month name with numeric input
+def month_str_to_month_num(month):
+
+    if month == 'January'   : return 1
+    if month == 'February'  : return 2
+    if month == 'March'     : return 3
+    if month == 'April'     : return 4
+    if month == 'May'       : return 5
+    if month == 'June'      : return 6
+    if month == 'July'      : return 7
+    if month == 'August'    : return 8
+    if month == 'September' : return 9
+    if month == 'October'   : return 10
+    if month == 'November'  : return 11
+    if month == 'December'  : return 12
+    else :
+        print("You provided a silly month name {} to month_str_to_month_num".format(month))
+
+# Return list of months beginning with January
+def list_of_months():
+    return ['January', 'February', 'March',
+            'April', 'May', 'June', 'July',
+            'August', 'September',
+            'October', 'November', 'December']
 
 # Get list of all years
 def get_years_in_data(hourly_data):

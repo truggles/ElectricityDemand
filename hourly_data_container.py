@@ -72,6 +72,9 @@ class HourlyDataContainer(SimpleContainer):
     def set_demand(self, new_demand):
         self.demand = new_demand
         self.set_value(new_demand)
+    def set_value(self, new_demand):
+        self.demand = new_demand
+        self.set_value(new_demand)
 
     # Compute demand deltas by comparing to previous and following hours
     def compute_deltas(self, previous_data, following_data):

@@ -64,7 +64,7 @@ def plot_hist(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=Fal
     if logX:
         plt.xscale('log', nonposx='clip')
     plt.savefig("plots/"+save+".png")
-    return plt
+    return n, bins, patches
 
 
 def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[]):
@@ -108,7 +108,7 @@ def plot_demand(hourly_data_sets, names, x_label, y_label, title, save, ylim=[])
 def plot_demand_with_annual_means(fig, ax, x_vals, info, save, title='Annual Mean Values'):
     vals = []
     for k, v in info.items():
-        for h in range(len(v[1])):
+        for h in range(v[0]):
             vals.append(v[2])
 
 
@@ -191,6 +191,44 @@ def histogram_gaps( vals, title, save, n_bins=100, logY=False, logX=False):
     
 
 
+def hist_variance(x, x_label, y_label, title, save, n_bins=100, logY=False, logX=False):
+
+    n, bins, patches = plot_hist(x, x_label, y_label, title, save, n_bins, logY, logX)
+    bin_to_use = np.floor(len(bins) * 0.1) # 0.1 seems okay for now
+    x_loc = bins[int(bin_to_use)] + (bins[-1] - bins[0])/50. # Additional values move the text off the x grid line
+    #x_loc = bins[ np.floor(.2 * len(bins)) ]
+    y_loc = max(n) * 0.9
+    plt.text(x_loc, y_loc, 'Var: {:.5f}'.format(np.var(x)))
+    plt.savefig("plots/"+save+".png")
+
+
+# Scatter plot of the montly mean values for each month created by
+# time_helpers.calculate_monthly_averages()
+def plot_monthly_vals(monthly_vals, title, save):
+    fig, ax = plt.subplots()
+    
+    x_vals = []
+    y_vals = []
+    years = []
+    for year, month_info in monthly_vals.items():
+        years.append(year)
+        
+        for month, val in month_info.items():
+            y_vals.append(val)
+            x_vals.append(helpers.month_str_to_month_num(month))
+        
+    ax.scatter(x_vals, y_vals, c='blue', label='Years {:d} {:d}'.format(years[0], years[-1]),
+                alpha=0.5, edgecolors='none')
+
+    ax.legend()
+    ax.grid(True)
+    plt.title(title)
+    
+    plt.xticks(x_vals, helpers.list_of_months())
+
+    ax.set_xlabel("Monthly Mean Value")
+
+    plt.savefig("plots/"+save+".png")
 
 
 
