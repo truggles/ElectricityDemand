@@ -11,31 +11,33 @@ def calculate_annaul_averages(hourly_data):
     # in the data
     for hour in hourly_data:
         if not hour.datetime.year in years.keys():
-            years[hour.datetime.year] = [1, []]
+            years[hour.datetime.year] = [1, hour.value]
         else:
             years[hour.datetime.year][0] += 1
+            years[hour.datetime.year][1] += hour.value
 
-
-    # Loop over all hours and add their demand to the appropriate year
-    for hour in hourly_data:
-        for year, vals in years.items():
-            if hour.datetime.year == year:
-                vals[1].append(hour.value)
 
     # Add mean values
     for year, vals in years.items():
-        vals.append(np.mean(vals[1]))
+        vals.append(vals[1]/vals[0])
         if vals[0] < 8760:
             print("WARNING: you are using calculate_annaul_averages with \
                     partial data for year {}".format(year))
     
     return years
 
-## Adjust demand based on annual averages derived from
-## calculate_annaul_averages()
-#def normalize_to_annual_averages(self, annual_info):
-#    for hour in self.hourly_data:
-#        hour.set_demand(hour.value / annual_info[hour.datetime.year][2])
+# Adjust demand based on annual averages derived from
+# calculate_annaul_averages()
+def normalize_to_annual_averages(annual_info, hourly_data):
+    for hour in hourly_data:
+        hour.set_value(hour.value / annual_info[hour.datetime.year][2])
+
+
+# Scale demand based on monthly averages derived from
+# calculate_monthly_averages()
+def normalize_to_monthly_averages(monthly_info, hourly_data):
+    for hour in hourly_data:
+        hour.set_value(hour.value / monthly_info[hour.datetime.year][2])
 
 
 # Calculate the seasonal averages for the whole data range
