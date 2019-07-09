@@ -13,7 +13,7 @@ class RenewablesData :
 
     def __init__(self, energy):
 
-        assert(energy == 'solar' or energy == 'wind'), "Choose 'solar' or 'wind' energy to load"
+        assert(energy == 'solar' or energy == 'wind' or energy == 'windSmall'), "Choose 'solar' or 'wind' energy to load"
 
         self.hourly_data = []
         self.demand_position = 2 # Position of reported demand use
