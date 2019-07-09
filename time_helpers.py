@@ -35,9 +35,26 @@ def normalize_to_annual_averages(annual_info, hourly_data):
 
 # Scale demand based on monthly averages derived from
 # calculate_monthly_averages()
-def normalize_to_monthly_averages(monthly_info, hourly_data):
+def normalize_to_monthly_averages(monthly_vals, hourly_data):
+
+    # Calc mean for each month over all years
+    monthly_means = {}
+    for month in range(1, 13):
+        monthly_means[month] = [0, 0.]
+
+    for year, month_info in monthly_vals.items():
+        for month, val in month_info.items():
+            monthly_means[helpers.month_str_to_month_num(month)][0] += 1
+            monthly_means[helpers.month_str_to_month_num(month)][1] += val
+
+    for month, vals in monthly_means.items():
+        vals.append(vals[1]/vals[0])
+        print(month, vals)
+
+    # Normalize based on monthly mean across all years
     for hour in hourly_data:
-        hour.set_value(hour.value / monthly_info[hour.datetime.year][2])
+        hour.set_value(hour.value / monthly_means[hour.datetime.month][2])
+
 
 
 # Calculate the seasonal averages for the whole data range
@@ -98,3 +115,25 @@ def calculate_monthly_averages(hourly_data):
         for month in months_names.keys():
             data_dict[year][month] = float(np.mean(data_dict[year][month]))
     return data_dict
+
+
+# Preps the variance plot info based on output from
+# calculate_monthly_averages()
+def info_for_monthly_variance(monthly_vals):
+    months_means = {}
+    for year, month_info in monthly_vals.items():
+        for month, info in month_info.items():
+            months_means[month] = [0., 0]
+        break
+    for year, month_info in monthly_vals.items():
+        for month, info in month_info.items():
+            months_means[month][0] += info
+            months_means[month][1] += 1
+    for month, vals in months_means.items():
+        vals.append(vals[0] / vals[1])
+    to_hist_months = []
+    
+    for year, month_info in monthly_vals.items():
+        for month, info in month_info.items():
+            to_hist_months.append(info/months_means[month][2])
+    return to_hist_months

@@ -226,7 +226,7 @@ def plot_monthly_vals(monthly_vals, title, save):
     
     plt.xticks(x_vals, helpers.list_of_months())
 
-    ax.set_xlabel("Monthly Mean Value")
+    ax.set_ylabel("Monthly Mean Value")
 
     plt.savefig("plots/"+save+".png")
 
