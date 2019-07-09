@@ -57,6 +57,25 @@ def normalize_to_monthly_averages(monthly_vals, hourly_data):
 
 
 
+# Scale demand based on 24hr x 52week averages derived from
+# get_24hr_x_52week_info()
+def normalize_to_24hr_x_52week_averages(normalization_info, hourly_data):
+    for hour in hourly_data:
+        week_to_use = hour.datetime.isocalendar()[1] - 1
+        if week_to_use > 51:
+            week_to_use = 51
+        # Normalizing some of the turn-on hours for solar can lead to huge values.
+        # Prevent division by very small numbers.
+        norm_value = normalization_info[week_to_use][hour.datetime.hour - 1]
+        # Prevent division by zero
+        if norm_value < 1e-5:
+            norm_value = 1e-5
+        # If norm_value is large enough, treat normally
+        if norm_value > 0.025:
+            hour.set_value(hour.value / norm_value)
+
+
+
 # Calculate the seasonal averages for the whole data range
 def calculate_seasonal_averages(hourly_data):
     seasons = OrderedDict()
@@ -85,7 +104,7 @@ def calculate_seasonal_averages(hourly_data):
     return data_dict
 
 # Calculate the monthly averages for the whole data range
-def calculate_monthly_averages(hourly_data):
+def calculate_monthly_averages(hourly_data, skip_zeros=False):
     months = OrderedDict()
     months[1] = 'January'
     months[2] = 'February'
@@ -108,7 +127,10 @@ def calculate_monthly_averages(hourly_data):
 
     # Loop over all hours and add their demand to the appropriate year and season
     for hour in hourly_data:
-        data_dict[hour.datetime.year][months[hour.datetime.month]].append(hour.value)
+        if skip_zeros and hour.value == 0.0:
+            continue
+        else:
+            data_dict[hour.datetime.year][months[hour.datetime.month]].append(hour.value)
     
     # Replace lists with mean value before returning
     for year, months_names in data_dict.items():
@@ -141,7 +163,7 @@ def info_for_monthly_variance(monthly_vals):
 
 # Create average 24 hour demand curves for each week
 # averaged over multiple years
-def get_hourly_info_per_week(hourly_data):
+def get_24hr_x_52week_info(hourly_data):
 
     # Need both for averaging
     hourly_demand_values = np.zeros((52,24))
