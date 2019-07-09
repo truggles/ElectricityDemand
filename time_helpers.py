@@ -137,3 +137,32 @@ def info_for_monthly_variance(monthly_vals):
         for month, info in month_info.items():
             to_hist_months.append(info/months_means[month][2])
     return to_hist_months
+
+
+# Create average 24 hour demand curves for each week
+# averaged over multiple years
+def get_hourly_info_per_week(hourly_data):
+
+    # Need both for averaging
+    hourly_demand_values = np.zeros((52,24))
+    hourly_demand_entries = np.zeros((52,24))
+
+    # Fill and get number of entries
+    for hour in hourly_data:
+        try:
+            hourly_demand_values[hour.datetime.isocalendar()[1] - 1][hour.datetime.hour - 1] += hour.value
+            hourly_demand_entries[hour.datetime.isocalendar()[1] - 1][hour.datetime.hour - 1] += 1
+        except IndexError:
+            if hour.datetime.isocalendar()[1] == 53:
+                hourly_demand_values[51][hour.datetime.hour - 1] += hour.value
+                hourly_demand_entries[51][hour.datetime.hour - 1] += 1
+
+    # Average
+    for week in range(52):
+        for hour in range(24):
+            hourly_demand_values[week][hour] = hourly_demand_values[week][hour] / hourly_demand_entries[week][hour]
+
+    return hourly_demand_values
+
+
+

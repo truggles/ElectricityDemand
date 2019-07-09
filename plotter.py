@@ -5,6 +5,7 @@ import numpy as np
 from collections import OrderedDict
 import helpers as helpers
 import matplotlib.dates as mdates # For date formatting
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def plot_24_hour_avg(hourly_demand, names, x_label, y_label, title, save):
@@ -230,5 +231,37 @@ def plot_monthly_vals(monthly_vals, title, save):
 
     plt.savefig("plots/"+save+".png")
 
+# Take 2D container from get_hourly_info_per_week()
+# and plot results
+def plot_daily_over_weeks_surface(hourly_info, save, angle_z=30, angle_plane=50):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    # Make data.
+    X = np.arange(0, 24)
+    Y = np.arange(0, 52)
+    X, Y = np.meshgrid(X, Y)
+
+    Z = np.zeros((52,24))
+
+    it = np.nditer(hourly_info, flags=['multi_index'])
+    while not it.finished:
+        Z[it.multi_index[0]][it.multi_index[1]] = it[0]
+        it.iternext()
+
+    # Plot the surface.
+    surf = ax.plot_surface(X, Y, Z, cmap=matplotlib.cm.coolwarm,
+                           linewidth=0, antialiased=False)
+
+
+    # Add a color bar which maps values to colors.
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+
+    ax.set_xlabel("Daily Hour")
+    ax.set_ylabel("Week of Year")
+
+    ax.view_init(angle_z, angle_plane)
+
+    plt.savefig("plots/"+save+".png")
 
 
