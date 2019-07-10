@@ -264,4 +264,25 @@ def plot_daily_over_weeks_surface(hourly_info, save, angle_z=30, angle_plane=50)
 
     plt.savefig("plots/"+save+".png")
 
+def simple_autocorrelation_plot(hourly_data, save, n_lags, y_lim=[-0.05, 0.3]):
 
+    print("\n\nsimple_autocorrelation_plot: assuming data has been normalized to '1', subtracting 1 from each value.\nAlso, requiring that values were originally positive.")
+
+    #y = [d.value - 1 for d in hourly_data if d.value > 0.]
+    #x = [d.datetime for d in hourly_data if d.value > 0.]
+    y = [d.value - 1 for d in hourly_data]
+    x = [d.datetime for d in hourly_data]
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, 'o', label='demand')
+    fig = plt.gcf()
+    plt.show()
+    fig.savefig("plots/"+save+"_values.png")
+
+
+
+    plt.acorr(y, maxlags=n_lags)
+    plt.ylim(y_lim[0], y_lim[1])
+    fig = plt.gcf()
+    plt.show()
+    fig.savefig("plots/"+save+"_autocorr.png")
