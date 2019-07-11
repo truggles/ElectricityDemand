@@ -199,7 +199,8 @@ def hist_variance(x, x_label, y_label, title, save, n_bins=100, logY=False, logX
     x_loc = bins[int(bin_to_use)] + (bins[-1] - bins[0])/50. # Additional values move the text off the x grid line
     #x_loc = bins[ np.floor(.2 * len(bins)) ]
     y_loc = max(n) * 0.9
-    plt.text(x_loc, y_loc, 'Var: {:.5f}'.format(np.var(x)))
+    plt.text(x_loc, y_loc, r'$\sigma^{{2}}: {:.5f}$'.format(np.var(x)))
+    plt.text(x_loc, y_loc * 0.9, r'$\sigma: {:.5f}$'.format(np.sqrt(np.var(x))))
     plt.savefig("plots/"+save+".png")
 
 
