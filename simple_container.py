@@ -15,10 +15,8 @@ class SimpleContainer:
 
         self.datetime = datetime.datetime.strptime(uct_time, '%Y%m%dT%HZ')
         self.month = self.datetime.month
-        if val > 0.025 or val <= 0.0:
-            self.value = val
-        else:
-            self.value = 0.0
+        self.value = val
+        self.original_value = val
 
     def set_value(self, new_val):
         self.value = new_val

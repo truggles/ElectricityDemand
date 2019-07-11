@@ -59,20 +59,20 @@ def normalize_to_monthly_averages(monthly_vals, hourly_data):
 
 # Scale demand based on 24hr x 52week averages derived from
 # get_24hr_x_52week_info()
-def normalize_to_24hr_x_52week_averages(normalization_info, hourly_data):
+def normalize_to_24hr_x_52week_averages(normalization_info, hourly_data, energy):
+
+    # If solar add 1.0 to all CFs
+    offset = 1.0 if 'solar' in energy else 0.0
+
     for hour in hourly_data:
         week_to_use = hour.datetime.isocalendar()[1] - 1
         if week_to_use > 51:
             week_to_use = 51
-        # Normalizing some of the turn-on hours for solar can lead to huge values.
-        # Prevent division by very small numbers.
         norm_value = normalization_info[week_to_use][hour.datetime.hour - 1]
         # Prevent division by zero
-        if norm_value < 1e-5:
+        if norm_value == 0.0:
             norm_value = 1e-5
-        # If norm_value is large enough, treat normally
-        if norm_value > 0.025:
-            hour.set_value(hour.value / norm_value)
+        hour.set_value( (hour.value + offset) / norm_value)
 
 
 
@@ -163,7 +163,10 @@ def info_for_monthly_variance(monthly_vals):
 
 # Create average 24 hour demand curves for each week
 # averaged over multiple years
-def get_24hr_x_52week_info(hourly_data):
+def get_24hr_x_52week_info(hourly_data, energy):
+
+    # If solar add 1.0 to all CFs
+    offset = 1.0 if 'solar' in energy else 0.0
 
     # Need both for averaging
     hourly_demand_values = np.zeros((52,24))
@@ -172,11 +175,11 @@ def get_24hr_x_52week_info(hourly_data):
     # Fill and get number of entries
     for hour in hourly_data:
         try:
-            hourly_demand_values[hour.datetime.isocalendar()[1] - 1][hour.datetime.hour - 1] += hour.value
+            hourly_demand_values[hour.datetime.isocalendar()[1] - 1][hour.datetime.hour - 1] += hour.value + offset
             hourly_demand_entries[hour.datetime.isocalendar()[1] - 1][hour.datetime.hour - 1] += 1
         except IndexError:
             if hour.datetime.isocalendar()[1] == 53:
-                hourly_demand_values[51][hour.datetime.hour - 1] += hour.value
+                hourly_demand_values[51][hour.datetime.hour - 1] += hour.value + offset
                 hourly_demand_entries[51][hour.datetime.hour - 1] += 1
 
     # Average
