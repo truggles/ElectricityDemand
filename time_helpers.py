@@ -163,7 +163,7 @@ def info_for_monthly_variance(monthly_vals):
 
 # Create average 24 hour demand curves for each week
 # averaged over multiple years
-def get_24hr_x_52week_info(hourly_data, energy):
+def get_24hr_x_52week_info(hourly_data, energy, save=False):
 
     # If solar add 1.0 to all CFs
     offset = 1.0 if 'solar' in energy else 0.0
@@ -186,6 +186,9 @@ def get_24hr_x_52week_info(hourly_data, energy):
     for week in range(52):
         for hour in range(24):
             hourly_demand_values[week][hour] = hourly_demand_values[week][hour] / hourly_demand_entries[week][hour]
+
+    if save:
+        np.save('normalization_24hr_x_52week_{}'.format(energy), hourly_demand_values)
 
     return hourly_demand_values
 
