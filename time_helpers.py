@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 # Calculate the annaul averages for each year in our data.
 # Some means will not include a full year
-def calculate_annaul_averages(hourly_data):
+def calculate_annaul_averages(hourly_data, save=False, energy=''):
     years = OrderedDict()
     # Get list of all years
     # First value in list tracks number of hours for that year
@@ -23,6 +23,9 @@ def calculate_annaul_averages(hourly_data):
         if vals[0] < 8760:
             print("WARNING: you are using calculate_annaul_averages with \
                     partial data for year {}".format(year))
+
+    if save:
+        np.save('normalization_annual_{}'.format(energy), years)
     
     return years
 
