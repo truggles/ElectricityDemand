@@ -149,7 +149,7 @@ def simplify_results(results_file, reliability_values, wind_values, solar_values
         for solar in solar_values:
             simp[reliability][solar] = {}
             for wind in wind_values:
-                simp[reliability][solar][wind] = 0.0
+                simp[reliability][solar][wind] = [0.0, 0]
 
     for line in ifile:
         if 'case name' in line: continue # skip hearder line
@@ -158,13 +158,21 @@ def simplify_results(results_file, reliability_values, wind_values, solar_values
         solar = float(info[5])
         wind = float(info[6])
         unmet = float(info[7])
-        if reli == 0.0: continue # TMP FIXME
-        simp[reli][solar][wind] += abs(unmet/reli)
 
-    for reliability in reliability_values:
+        # Remove entries which were from Step 1 which calculated
+        # capacities with a target reliability
+        if round(reli, 10) == round(unmet, 10): continue
+
+        if reli == 0.0: continue # TMP FIXME
+        to_add = abs(unmet/reli - 1.)
+        simp[reli][solar][wind][0] += to_add
+        simp[reli][solar][wind][1] += 1
+
+    for reli in reliability_values:
         for solar in solar_values:
             for wind in wind_values:
-                simp[reli][solar][wind] = simp[reli][solar][wind]/2. # np.sqrt(simp[reli][solar][wind])
+                if simp[reli][solar][wind][1] == 0: continue
+                simp[reli][solar][wind][0] = simp[reli][solar][wind][0]/simp[reli][solar][wind][1] # np.sqrt(simp[reli][solar][wind])
 
     return simp
 
@@ -271,23 +279,22 @@ if '__main__' in __name__:
 
     for reliability in reliability_values:
         if reliability == 0.0: continue
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
         Z = np.zeros((len(wind_values),len(solar_values)))
         for solar in solar_values:
             for wind in wind_values:
-                Z[solar_values.index(solar)][wind_values.index(wind)] = results[reliability][solar][wind]
+                Z[solar_values.index(solar)][wind_values.index(wind)] = results[reliability][solar][wind][0]
 
-        # Plot the surface.
-        surf = ax.plot_surface(X, Y, Z, cmap=matplotlib.cm.coolwarm,
-                               linewidth=0, antialiased=False)
+        print(reliability)
+        print(Z)
 
+        fig, ax = plt.subplots()
+        im = ax.imshow(Z,interpolation='none',extent=[-0.125,1.125,-0.125,1.125],origin='lower', vmin=0.)
 
-        # Add a color bar which maps values to colors.
-        fig.colorbar(surf, shrink=0.5, aspect=5)
-
-        ax.set_xlabel("Solar Fraction of Mean")
-        ax.set_ylabel("Wind Fraction of Mean")
-        ax.view_init(90, 270)
-
+        plt.xticks(wind_values, wind_values)
+        plt.yticks(wind_values, wind_values)
+        plt.xlabel("Wind Fraction")
+        plt.ylabel("Solar Fraction")
+        plt.title("Grid Reliability Uncertainty for Target {:.4f}".format(reliability))
+        ax.figure.colorbar(im)
         plt.savefig("rel_{}_tmp.png".format(str(reliability).replace('.','p')))
+        plt.clf()
