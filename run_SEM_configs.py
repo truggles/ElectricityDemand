@@ -105,7 +105,7 @@ def get_output_file_names(path):
 
     files = glob(path+'*.csv')
     if len(files) > 1:
-        print("Too many files: {}".format(files))
+        print("This many files were found matching {}*.csv: {}".format(path, len(files)))
     return files
 
 def get_results(files):
@@ -118,6 +118,7 @@ def get_results(files):
         keys.append(info['case name'].values[0])
         results[info['case name'].values[0]] = [
                        info['problem status'].values[0],
+                       float(info['case name'].values[0].split('_')[1].replace('p','.')), # reliability value
                        info['system cost ($/kW/h)'].values[0],
                        info['capacity natgas (kW)'].values[0],
                        info['capacity solar (kW)'].values[0],
@@ -125,13 +126,48 @@ def get_results(files):
                        info['dispatch unmet demand (kW)'].values[0]
         ]
 
+    print('Writing results to "Results.txt"')
+    ofile = open('Results.txt', 'w')
     keys = sorted(keys)
-    print('case name,problem status,system cost ($/kW/h),capacity natgas (kW),capacity solar (kW),capacity wind (kW),dispatch unmet demand (kW)')
+    ofile.write('case name,problem status,target reliability,system cost ($/kW/h),capacity natgas (kW),capacity solar (kW),capacity wind (kW),dispatch unmet demand (kW)\n')
     for key in keys:
         to_print = ''
         for info in results[key]:
             to_print += str(info)+','
-        print(key, to_print)
+        ofile.write("{},{}\n".format(key, to_print))
+    ofile.close()
+    return results
+
+# Get info from file, so we don't have to repeat get_results
+# many many times
+def simplify_results(results_file, reliability_values, wind_values, solar_values):
+    ifile = open(results_file, 'r')
+
+    simp = {}
+    for reliability in reliability_values:
+        simp[reliability] = {}
+        for solar in solar_values:
+            simp[reliability][solar] = {}
+            for wind in wind_values:
+                simp[reliability][solar][wind] = 0.0
+
+    for line in ifile:
+        if 'case name' in line: continue # skip hearder line
+        info = line.split(',')
+        reli = float(info[2])
+        solar = float(info[5])
+        wind = float(info[6])
+        unmet = float(info[7])
+        if reli == 0.0: continue # TMP FIXME
+        simp[reli][solar][wind] += abs(unmet/reli)
+
+    for reliability in reliability_values:
+        for solar in solar_values:
+            for wind in wind_values:
+                simp[reli][solar][wind] = simp[reli][solar][wind]/2. # np.sqrt(simp[reli][solar][wind])
+
+    return simp
+
 
 if '__main__' in __name__:
 
@@ -214,5 +250,44 @@ if '__main__' in __name__:
     #            copy2(files[-1], results)
     #            os.remove(files[-1])
 
-    files = get_output_file_names(results+'/tests_Jul25_v1_2019')
-    get_results(files)
+    #results = '/Users/truggles/IDrive-Sync/Carnegie/SEM-1.2/Output_Data/tests_Jul25_v1/results'
+    #files = get_output_file_names(results+'/tests_Jul25_v1_2019')
+    #results = get_results(files)
+    results = simplify_results("Results.txt", reliability_values, wind_values, solar_values)
+
+    ## Take 2D container from get_hourly_info_per_week()
+    ## and plot results
+    #def plot_daily_over_weeks_surface(hourly_info, save, angle_z=30, angle_plane=50):
+
+    import matplotlib
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    # Make data.
+    X = wind_values
+    Y = solar_values
+    X, Y = np.meshgrid(X, Y)
+
+
+    for reliability in reliability_values:
+        if reliability == 0.0: continue
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        Z = np.zeros((len(wind_values),len(solar_values)))
+        for solar in solar_values:
+            for wind in wind_values:
+                Z[solar_values.index(solar)][wind_values.index(wind)] = results[reliability][solar][wind]
+
+        # Plot the surface.
+        surf = ax.plot_surface(X, Y, Z, cmap=matplotlib.cm.coolwarm,
+                               linewidth=0, antialiased=False)
+
+
+        # Add a color bar which maps values to colors.
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+
+        ax.set_xlabel("Solar Fraction of Mean")
+        ax.set_ylabel("Wind Fraction of Mean")
+        ax.view_init(90, 270)
+
+        plt.savefig("rel_{}_tmp.png".format(str(reliability).replace('.','p')))
