@@ -5,6 +5,7 @@ import subprocess
 import os
 from glob import glob
 from shutil import copy2
+from collections import OrderedDict
 
 
 
@@ -282,7 +283,7 @@ if '__main__' in __name__:
         Z = np.zeros((len(wind_values),len(solar_values)))
         for solar in solar_values:
             for wind in wind_values:
-                Z[solar_values.index(solar)][wind_values.index(wind)] = results[reliability][solar][wind][0]
+                Z[solar_values.index(solar)][wind_values.index(wind)] = results[reliability][solar][wind][0] * 100.
 
         print(reliability)
         print(Z)
@@ -294,7 +295,41 @@ if '__main__' in __name__:
         plt.yticks(wind_values, wind_values)
         plt.xlabel("Wind Fraction")
         plt.ylabel("Solar Fraction")
-        plt.title("Grid Reliability Uncertainty for Target {:.4f}".format(reliability))
-        ax.figure.colorbar(im)
-        plt.savefig("rel_{}_tmp.png".format(str(reliability).replace('.','p')))
+        plt.title("Reliability Uncert. for Target Unmet Demand: {:.2f}%".format(reliability*100))
+        cbar = ax.figure.colorbar(im)
+        cbar.ax.set_ylabel("Relative reliability uncert. (%)")
+        plt.savefig("reliability_uncert_for_target_{}.png".format(str(reliability).replace('.','p')))
         plt.clf()
+
+
+    # Make some plots of a single fraction over reliability range
+    techs = OrderedDict()
+    techs[(0.0, 0.0)] = ["Wind Zero, Solar Zero", []]
+    techs[(0.5, 0.5)] = ["Wind 0.5, Solar 0.5", []]
+    techs[(1.0, 0.0)] = ["Wind 1.0, Solar 0.0", []]
+    techs[(0.0, 1.0)] = ["Wind 0.0, Solar 1.0", []]
+    techs[(1.0, 1.0)] = ["Wind 1.0, Solar 1.0", []]
+
+    inverted = sorted(reliability_values, reverse=True)
+    inverted.remove(0.0)
+    for reli in inverted:
+        for solar in solar_values:
+            for wind in wind_values:
+                for name, vals in techs.items():
+                    if name[0] == wind and name[1] == solar:
+                        vals[1].append(results[reli][wind][solar][0] * 100)
+
+
+
+    fig, ax = plt.subplots()
+    for name, vals in techs.items():
+        print(name, vals)
+        ax.plot(inverted, vals[1], 'o', label=vals[0])
+
+    plt.xlabel("Target Unmet Demand: 1 - (annual delivered/annual demand)")
+    plt.ylabel("abs[(unmet dem. - target unmet dem.)/target unmet dem.] (%)")
+    plt.title("Uncertainty in Achieving Annual Reliability Targets")
+    plt.xscale('log', nonposx='clip')
+    ax.legend()
+    plt.savefig("reliability_uncert_comparison.png")
+    
