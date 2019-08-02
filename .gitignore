@@ -9,3 +9,4 @@ data
 data/*
 .DS_Store
 *.npy
+*.png
