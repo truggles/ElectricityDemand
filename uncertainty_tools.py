@@ -14,19 +14,21 @@ from datetime import datetime
 # are kept
 def return_renewable_df(file_path, is_wind, is_solar, start_year=1900, end_year=2020):
 
-    assert(is_wind != is_solar), "Wind OR solar must be specified. You selected is_wind {} and is_solar {}".format(is_wind, is_solar)
+    assert(is_wind + is_solar == 1), "Wind OR solar must be specified. You selected is_wind {} and is_solar {}".format(is_wind, is_solar)
 
-    dta = pd.read_csv(file_path, #index_col='time', 
-                       dtype={'solar capacity':np.float64},
-                      parse_dates=True, na_values=['MISSING', 'EMPTY'])
-    
     # Load normalizations
     if is_wind:
         energy = 'wind'
     if is_solar:
         energy = 'solar'
-    annual = np.load('normalization_annual_{}.npy'.format(energy))
-    hour_and_weeks = np.load('normalization_24hr_x_52week_{}.npy'.format(energy))
+    dta = pd.read_csv(file_path, #index_col='time', 
+                       dtype={'{} capacity'.format(energy):np.float64},
+                      parse_dates=True, na_values=['MISSING', 'EMPTY'])
+    
+    # FIXME only have wind normalizations now, so load them for solar as well
+    tmp = 'wind'
+    annual = np.load('normalization_annual_{}.npy'.format(tmp))
+    hour_and_weeks = np.load('normalization_24hr_x_52week_{}.npy'.format(tmp))
     
 
     # skip this loop if all data is to be included
@@ -72,7 +74,7 @@ def return_renewable_df(file_path, is_wind, is_solar, start_year=1900, end_year=
         annual_norm.append(annual.item().get(years[-1])[2])
         weekly_norm.append(hour_and_weeks[weeks[-1]][hours[-1]])
         full_norm.append(annual_norm[-1] * weekly_norm[-1])
-        normalized.append( (row['solar capacity'] - full_norm[-1]) / full_norm[-1])
+        normalized.append( (row['{} capacity'.format(energy)] - full_norm[-1]) / full_norm[-1])
         
     dta = dta.assign(date=dates)
     dta = dta.assign(year=years)
