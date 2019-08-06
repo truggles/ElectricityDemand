@@ -7,6 +7,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import copy
 
 
 # returns pandas df of renewable info, start_year defaults to prior to our records
@@ -220,20 +221,66 @@ def print_markov_2_state_probs(vals, threshold):
     tot = 0.0
     both_fails = 0.0
     for k, v in results.items():
-        print(k, v, float(v/len(vals)))
+        #print(k, v, float(v/len(vals)))
         tot += float(v/len(vals))
         if 'fail_to_' in k:
             both_fails += float(v/len(vals))
 
-    print ("Total {:.6f}, both fails {:.6f}\n".format(tot, both_fails))
+    #print ("Total {:.6f}, both fails {:.6f}\n".format(tot, both_fails))
 
 
     M = np.array([[results['fail_to_fail'], results['fail_to_success']],
                   [results['success_to_fail'], results['success_to_success']]])
-    print(M,"\n")
+    #print(M,"\n")
 
     alpha = float(results['fail_to_success']/(results['fail_to_success']+results['fail_to_fail']))
     beta = float(results['success_to_fail']/(results['success_to_success']+results['success_to_fail']))
 
     P = np.array([[1-alpha, alpha], [beta, 1-beta]])
-    print(P,"\n")
+    #print(P,"\n")
+
+    return M, P
+
+
+# Return the state number based on the value
+def get_state(val, thresholds):
+
+    rtn = 0
+    for threshold in thresholds:
+        if val < threshold:
+            return rtn
+        else:
+            rtn += 1
+    return rtn
+
+
+# Normalize matrix rows to unity
+def normalize_rows(transitions):
+    normed = copy.deepcopy(transitions)
+    for i in range(len(normed)):
+        normed[i] = normed[i]/normed[i].sum()
+    return normed
+
+
+# Markov transition matrix for state system.
+# Initial state is set by first time slice.
+# Transitions are analyzed for n-1 time steps.
+def get_markov_transitions(vals, thresholds):
+
+    # Transitions matrix for recording each hour-to-hour transition
+    transitions = np.zeros((len(thresholds)+1, len(thresholds)+1))
+
+
+    prev = 0
+    prev = get_state(vals[0], thresholds)
+    current = 0
+    for i in range(1, len(vals)):
+        val = vals[i]
+        current = get_state(val, thresholds)
+        transitions[prev][current] += 1
+        prev = current
+
+    normed = normalize_rows(transitions)
+
+    return transitions, normed
+
