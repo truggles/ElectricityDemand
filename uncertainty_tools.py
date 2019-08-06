@@ -187,59 +187,6 @@ def sem_time(uct_time):
     return uct_time
 
 
-# Markov two state system
-def print_markov_2_state_probs(vals, threshold):
-    results = {
-        'success_to_success' : 0,
-        'success_to_fail' : 0,
-        'fail_to_success' : 0,
-        'fail_to_fail' : 0,
-    }
-
-    prev = False # set to fail initially
-    current = False # set to fail initially
-    for val in vals:
-        if val > threshold:
-            current = True
-        if val <= threshold:
-            current = False
-
-        if prev and current:
-            results['success_to_success'] += 1
-        elif prev and not current:
-            results['success_to_fail'] += 1
-        elif not prev and current:
-            results['fail_to_success'] += 1
-        elif not prev and not current:
-            results['fail_to_fail'] += 1
-        else:
-            print("Problem with logic")
-
-        prev = current
-
-
-    tot = 0.0
-    both_fails = 0.0
-    for k, v in results.items():
-        #print(k, v, float(v/len(vals)))
-        tot += float(v/len(vals))
-        if 'fail_to_' in k:
-            both_fails += float(v/len(vals))
-
-    #print ("Total {:.6f}, both fails {:.6f}\n".format(tot, both_fails))
-
-
-    M = np.array([[results['fail_to_fail'], results['fail_to_success']],
-                  [results['success_to_fail'], results['success_to_success']]])
-    #print(M,"\n")
-
-    alpha = float(results['fail_to_success']/(results['fail_to_success']+results['fail_to_fail']))
-    beta = float(results['success_to_fail']/(results['success_to_success']+results['success_to_fail']))
-
-    P = np.array([[1-alpha, alpha], [beta, 1-beta]])
-    #print(P,"\n")
-
-    return M, P
 
 
 # Return the state number based on the value
