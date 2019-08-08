@@ -293,8 +293,8 @@ if '__main__' in __name__:
 
         plt.xticks(wind_values, wind_values)
         plt.yticks(wind_values, wind_values)
-        plt.xlabel("Wind Fraction")
-        plt.ylabel("Solar Fraction")
+        plt.xlabel("Wind Capacity w.r.t Dem. Mean")
+        plt.ylabel("Solar Capacity w.r.t Dem. Mean")
         plt.title("Reliability Uncert. for Target Unmet Demand: {:.2f}%".format(reliability*100))
         cbar = ax.figure.colorbar(im)
         cbar.ax.set_ylabel("Relative reliability uncert. (%)")
@@ -324,7 +324,7 @@ if '__main__' in __name__:
     fig, ax = plt.subplots()
     for name, vals in techs.items():
         print(name, vals)
-        ax.plot(inverted, vals[1], 'o', label=vals[0])
+        ax.plot(inverted, vals[1], 'o-', label=vals[0])
 
     plt.xlabel("Target Unmet Demand: 1 - (annual delivered/annual demand)")
     plt.ylabel("abs[(unmet dem. - target unmet dem.)/target unmet dem.] (%)")
