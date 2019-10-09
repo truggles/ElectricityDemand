@@ -130,4 +130,27 @@ def get_years_in_data(hourly_data):
             years[hour.datetime.year] = ''
     return years
 
-
+def return_all_regions():
+    return ['AEC', 'AECI', 'CPLE', 'CPLW',
+    'DUK', 'FMPP', 'FPC',
+    'FPL', 'GVL', 'HST', 'ISNE',
+    'JEA', 'LGEE', 'MISO', 'NSB',
+    'NYIS', 'OVEC', 'PJM', 'SC',
+    'SCEG', 'SEC', 'SOCO',
+    'SPA', 'SWPP', 'TAL', 'TEC',
+    'TVA', 'ERCO',
+    'AVA', 'AZPS', 'BANC', 'BPAT',
+    'CHPD', 'CISO', 'DOPD',
+    'EPE', 'GCPD', 'IID',
+    'IPCO', 'LDWP', 'NEVP', 'NWMT',
+    'PACE', 'PACW', 'PGE', 'PNM',
+    'PSCO', 'PSEI', 'SCL', 'SRP',
+    'TEPC', 'TIDC', 'TPWR', 'WACM',
+    'WALC', 'WAUW']
+    
+    
+def return_good_regions():
+    regions = return_all_regions()
+    regions.remove('SEC')
+    regions.remove('OVEC')
+    return regions
