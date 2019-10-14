@@ -11,3 +11,4 @@ data/*
 *.npy
 *.png
 *.pdf
+*.pkl
