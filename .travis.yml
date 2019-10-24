@@ -11,8 +11,3 @@ before_install:
 install:
   - pip install numpy
 script: pytest
-
-# safelist
-branches:
-  only:
-  - master
