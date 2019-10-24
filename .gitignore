@@ -12,3 +12,4 @@ data/*
 *.png
 *.pdf
 *.pkl
+tests/__pycache__

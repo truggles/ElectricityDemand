@@ -1,0 +1,12 @@
+language: python
+python:
+  - '3.7'
+before_install:
+  - df -h
+  - pwd
+  - ls -a
+  - uname -a
+  - git --version
+  - git tag
+install:
+  - pip install numpy
