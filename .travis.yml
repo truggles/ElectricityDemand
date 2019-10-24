@@ -10,3 +10,4 @@ before_install:
   - git tag
 install:
   - pip install numpy
+script: pytest
