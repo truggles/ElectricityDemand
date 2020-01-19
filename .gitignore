@@ -13,3 +13,4 @@ data/*
 *.pdf
 *.pkl
 tests/__pycache__
+nyiso*
