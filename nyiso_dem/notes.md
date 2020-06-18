@@ -33,7 +33,13 @@ data is from http://www.ercot.com/gridinfo/load/load_hist
 
 data is from https://dataminer2.pjm.com/feed/hrl_load_metered
 
+historical data guide: https://www.pjm.com/-/media/etools/data-miner-2/data-miner-2-historic-data-guide.ashx?la=en
+
 I exported the csv files in 1 year chuncks from the data viewer.  I could not get the API registration email to work.
+
+PJM reports timestamps based on: `datetime_beginning_utc`, I could not find documentation on this. However, I took
+a PJM demand time series and plotted it against EIA's which uses the time at the end of the hour. The profiles
+were 1 hour shifted. I will add 1 hour to all PJM timestamps to align with MEM and other BAs.
 
 There are a few missing hours in the 1993-2019 data record (where idx is based on
 stitching all these together and time is UTC):
