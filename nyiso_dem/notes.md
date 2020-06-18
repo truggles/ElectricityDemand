@@ -3,7 +3,7 @@
 
 The raw demand files from NYISO and ERCOT are located in my Carnegie
 gDrive:
- * `Reliability/Inputs/ERCOT_DEMAND.zip`
+ * `Reliability/Inputs/ERCOT_DEMAND_1998-2020.zip`
  * `Reliability/Inputs/NYISO_All_Data_2002-2019.zip`
 
 ## NYISO
@@ -11,6 +11,8 @@ gDrive:
 data is fetched using `NYISO_download_and_unzip.sh`
 
 ## ERCOT 
+
+see: `ERCOT_demand_prep.ipynb`
 
 data is from http://www.ercot.com/gridinfo/load/load_hist
  * The 2001 data year is missing
@@ -24,6 +26,8 @@ data is from http://www.ercot.com/gridinfo/load/load_hist
     * had to interpolate for a subregion for y1999	m3	d21	h24
  * 2000
     * deleted row for y2000	m4	d2	h3, it was fully zero (DST)
+    * had to change the repeat hour for DST from 3am in Oct 31 to 2am to get picked up by code
+
 
 # PJM
 
