@@ -60,6 +60,20 @@ Gap at idx 95262 for times 2003-11-15 08:00:00 --> 2003-11-15 10:00:00
 Gap at idx 103681 for times 2004-10-31 04:00:00 --> 2004-10-31 07:00:00
 Gap at idx 147527 for times 2009-11-01 04:00:00 --> 2009-11-01 07:00:00
 
+Because PJM's demand significantly changed between 2004 and 2006, from mean of approx 30GW to 80GW
+we will ignore demand prior to 2006.  Therefore, I fix the last mentioned demand gap in 2009 only
+where the PJM RTO demand is missing for 2 hours. Linearly interpolate between
+UTC end time    demand (MW)
+11/1/09 5:00	58086.021
+11/1/09 8:00	53372.809
+
+(58086.021 - 53372.809) / 3. = 1571.071
+
+UTC end time    demand (MW)
+11/1/09 5:00	58086.021
+11/1/09 6:00	58086.021 - 1 * 1571.071 = 56514.95
+11/1/09 7:00	58086.021 - 2 * 1571.071 = 54943.879
+11/1/09 8:00	53372.809
 
 # Regarding GeoPandas and Zane's geometry files:
 
