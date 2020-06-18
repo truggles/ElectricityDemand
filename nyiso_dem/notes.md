@@ -10,6 +10,24 @@ gDrive:
 
 data is fetched using `NYISO_download_and_unzip.sh`
 
+### Notes
+Some files are missing entries
+* Empty rows are being added
+* 2003 is an especially bad year for gaps
+* Will use 2004-2019 for analysis
+* 2004 has many duplicate entries, they appear to follow the few % difference style of 2005
+
+### Daylight Savings Time
+Many files had the transition from EST to EDT and vice versa happening not at 2:00am, but later in the morning. I realigned this in the original files. This resolved some of the duplicate issues in the Spring time at 1:00am. In these cases, I took the first entry as chronologically first and shifted the duplicate to the next hour.
+
+### NYISO - FIXME
+Some files have multiple entries for a single region for a given time stamp
+* The initiall processing prints these out for comparison. Many duplicates and gaps were resolved with DST correction mentioned above.
+
+Some files are missing entries
+* Missing values are filled with a linear interpolation
+
+
 ## ERCOT 
 
 see: `ERCOT_demand_prep.ipynb`
