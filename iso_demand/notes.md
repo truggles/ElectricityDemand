@@ -47,7 +47,7 @@ data is from http://www.ercot.com/gridinfo/load/load_hist
     * had to change the repeat hour for DST from 3am in Oct 31 to 2am to get picked up by code
 
 
-# PJM
+## PJM
 
 data is from https://dataminer2.pjm.com/feed/hrl_load_metered
 
@@ -92,6 +92,25 @@ UTC end time    demand (MW)
 11/1/09 6:00	58086.021 - 1 * 1571.071 = 56514.95
 11/1/09 7:00	58086.021 - 2 * 1571.071 = 54943.879
 11/1/09 8:00	53372.809
+
+## Great Britain, National Grid ESO
+
+### https://data.nationalgrideso.com/demand/historic-demand-data
+
+Annual date from 2013-2020
+
+### Documentation
+
+Documentation file: https://data.nationalgrideso.com/backend/dataset/8f2fe0af-871c-488d-8bad-960426f24601/resource/243ca76a-eefe-419d-a4b5-397073deb100/download/faq.doc
+
+Data is every 30 min. Time in not clearly stated, but is in units of "settlement number". One day per year has 50 settlements while the rest have 48 (and one has 46). Values are in MW and are the avg over 30 min. It appears that the values are reported at the start of the 30 min window, "All times are UK time and for the half hour beginning."
+
+
+
+
+
+
+
 
 # Regarding GeoPandas and Zane's geometry files:
 
