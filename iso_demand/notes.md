@@ -105,7 +105,15 @@ Documentation file: https://data.nationalgrideso.com/backend/dataset/8f2fe0af-87
 
 Data is every 30 min. Time in not clearly stated, but is in units of "settlement number". One day per year has 50 settlements while the rest have 48 (and one has 46). Values are in MW and are the avg over 30 min. It appears that the values are reported at the start of the 30 min window, "All times are UK time and for the half hour beginning."
 
+## France
 
+https://opendata.reseaux-energies.fr/explore/dataset/consommation-quotidienne-brute-elec/information/?disjunctive.qualite
+
+Can make an account and download the data, 2008-2018 (validated), includes 2019 to current as well.
+Data looks okay. The downloaded files need to be sorted by datetime, not sure why.
+
+Data is in 30 min intervals, so avg to calc hourly for MEM. Values appear to be reported at
+the beginning of the time interval.
 
 
 
